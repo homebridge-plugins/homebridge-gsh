@@ -2,3 +2,9 @@ node_modules
 .env
 dist
 homebridge-gsh-**.tgz
+/homebridge-ui/public/.angular
+test/hbConfig/.uix-dashboard.json
+test/hbConfig/.uix-secrets
+/test/hbConfig/accessories
+/test/hbConfig/backups
+/test/hbConfig/persist

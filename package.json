@@ -48,7 +48,7 @@
   "dependencies": {
     "@oznu/ws-connect": "^2.2.0",
     "fs-extra": "^9.0.1",
-    "hap-node-client": "^0.1.5",
+    "hap-node-client": "0.1.5",
     "rxjs": "^6.6.3",
     "semver": "^7.6.3"
   },
@@ -74,7 +74,7 @@
     ],
     "ext": "ts",
     "ignore": [],
-    "exec": "tsc && DEBUG= homebridge -U ./test/hbConfig -T -D -P .",
+    "exec": "tsc && DEBUG= homebridge -U ./test/hbConfig -T -D -P `pwd`",
     "signal": "SIGTERM",
     "env": {
       "NODE_OPTIONS": "--trace-warnings"
