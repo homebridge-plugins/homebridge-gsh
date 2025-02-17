@@ -84,7 +84,7 @@ describe('heaterCooler', () => {
       expect(response.attributes.thermostatTemperatureUnit).toBeDefined();
       // await sleep(10000)
     });
-    it('heaterCooler ac', async () => {
+    it('heaterCooler ac as thermostat', async () => {
       const response: any = heaterCooler.sync(heaterCoolerAC);
       expect(response).toBeDefined();
       expect(response.type).not.toBe('action.devices.types.AC_UNIT');
@@ -106,6 +106,30 @@ describe('heaterCooler', () => {
       expect(response.attributes.availableThermostatModes).not.toContain('auto');
       expect(response.attributes.thermostatTemperatureUnit).toBeDefined();
       // await sleep(10000)
+    });
+    it('heaterCooler ac as ac_unit', async () => {
+      const hap = new Hap(socketMock, log, '031-45-154', { ...config, showHeaterCoolerAsACUnit: true });
+      const heaterCooler = new HeaterCooler(hap);
+      const response: any = heaterCooler.sync(heaterCoolerAC);
+      expect(response).toBeDefined();
+      expect(response.type).toBe('action.devices.types.AC_UNIT');
+      expect(response.type).not.toBe('action.devices.types.THERMOSTAT');
+      expect(response.traits).toContain('action.devices.traits.TemperatureSetting');
+      expect(response.traits).toContain('action.devices.traits.OnOff');
+      expect(response.traits).toContain('action.devices.traits.FanSpeed');
+      expect(response.traits).not.toContain('action.devices.traits.Brightness');
+      expect(response.traits).not.toContain('action.devices.traits.ColorSetting');
+      expect(response.attributes).toBeDefined();
+      expect(response.attributes.commandOnlyOnOff).toBe(false);
+      expect(response.attributes.queryOnlyOnOff).toBe(false);
+      expect(response.attributes.supportsFanSpeedPercent).toBe(true);
+      expect(response.attributes.availableThermostatModes).toBeDefined();
+      expect(response.attributes.availableThermostatModes).toContain('off');
+      expect(response.attributes.availableThermostatModes).toContain('heat');
+      expect(response.attributes.availableThermostatModes).toContain('cool');
+      expect(response.attributes.availableThermostatModes).toContain('heatcool');
+      expect(response.attributes.availableThermostatModes).not.toContain('auto');
+      expect(response.attributes.thermostatTemperatureUnit).toBeDefined();
     });
   });
 

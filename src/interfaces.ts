@@ -15,6 +15,7 @@ export interface PluginConfig extends PlatformConfig {
   accessorySerialFilter?: Array<string>;
   forceFahrenheit?: boolean;
   betaServer?: boolean;
+  showHeaterCoolerAsACUnit?: boolean;
 }
 
 export interface Instance {
