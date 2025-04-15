@@ -38,11 +38,14 @@ export class Thermostat extends ghToHap implements ghToHap_t {
   }
 
   query(service: ServiceType) {
+    const currentHeatingCoolingState: number = Number(service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentHeatingCoolingState).value);
+    const activeThermostatMode = ['off', 'heat', 'cool'][currentHeatingCoolingState];
     const targetHeatingCoolingState: number = Number(service.serviceCharacteristics.find(x => x.uuid === Characteristic.TargetHeatingCoolingState).value);
     const thermostatMode = ['off', 'heat', 'cool', 'auto'][targetHeatingCoolingState];
 
     const response = {
       online: true,
+      activeThermostatMode,
       thermostatMode,
       thermostatTemperatureSetpoint: service.serviceCharacteristics.find(x => x.uuid === Characteristic.TargetTemperature).value,
       thermostatTemperatureAmbient: service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentTemperature).value,

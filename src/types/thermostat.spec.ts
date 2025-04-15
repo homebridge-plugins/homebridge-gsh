@@ -82,6 +82,7 @@ describe('thermostat', () => {
 
       expect(response).toBeDefined();
       expect(response.online).toBeDefined();
+      expect(response.activeThermostatMode).toBeDefined();
       expect(response.thermostatMode).toBeDefined();
       expect(response.thermostatTemperatureSetpoint).toBeDefined();
       expect(response.thermostatTemperatureAmbient).toBeDefined();
@@ -93,6 +94,7 @@ describe('thermostat', () => {
 
       expect(response).toBeDefined();
       expect(response.online).toBeDefined();
+      expect(response.activeThermostatMode).toBeDefined();
       expect(response.thermostatMode).toBeDefined();
       expect(response.thermostatTemperatureAmbient).toBeDefined();
       // await sleep(10000)
@@ -459,6 +461,27 @@ const thermostatTemp: ServiceType = {
     {
       aid: 13,
       iid: 11,
+      uuid: Characteristic.CurrentHeatingCoolingState,
+      type: 'CurrentHeatingCoolingState',
+      serviceType: 'CurrentHeatingCoolingState',
+      serviceName: 'Shed Light',
+      description: 'Configured Name',
+      value: 1,
+      format: 'string',
+      perms: ['ev', 'pr', 'pw'],
+      unit: undefined,
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 11,
       uuid: Characteristic.TargetHeatingCoolingState,
       type: 'TargetHeatingCoolingState',
       serviceType: 'TargetHeatingCoolingState',
@@ -601,6 +624,27 @@ const thermostatNoHeat: ServiceType = {
       uuid: '000000B0-0000-1000-8000-0026BB765291',
       type: 'ConfiguredName',
       serviceType: 'Active',
+      serviceName: 'Shed Light',
+      description: 'Configured Name',
+      value: 1,
+      format: 'string',
+      perms: ['ev', 'pr', 'pw'],
+      unit: undefined,
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 11,
+      uuid: Characteristic.CurrentHeatingCoolingState,
+      type: 'CurrentHeatingCoolingState',
+      serviceType: 'CurrentHeatingCoolingState',
       serviceName: 'Shed Light',
       description: 'Configured Name',
       value: 1,
