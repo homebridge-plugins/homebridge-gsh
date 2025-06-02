@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { PluginConfig } from '@homebridge/plugin-ui-utils/dist/ui.interface';
 import { TranslateService } from './translate.service';
 import { LocalUserData, UserDataService } from './user-data.service';
@@ -14,6 +14,7 @@ export class UserDataComponent implements OnInit {
   @Input() pluginConfig!: PluginConfig;
   @Input() linkDomain!: string;
   @Input() user_id!: string;
+  @Output() userDataChange = new EventEmitter<LocalUserData>();
 
   public userData!: LocalUserData;
   public createSubscriptionExpanded = false;
@@ -37,6 +38,7 @@ export class UserDataComponent implements OnInit {
     this.userDataService.getUserData(this.linkDomain, this.pluginConfig.token).subscribe({
       next: data => {
         this.userData = data;
+        this.userDataChange.emit(this.userData); // Emit userData to parent
         console.log('✅ User data loaded:', data);
       },
       error: err => {
@@ -68,7 +70,6 @@ export class UserDataComponent implements OnInit {
       subscriptionID: this.userData.paypalSubscriptionID
     };
 
-
     fetch(`${this.linkDomain}/userData/cancel`, {
       method: 'POST',
       headers: {
@@ -87,10 +88,11 @@ export class UserDataComponent implements OnInit {
       .then(response => {
         if (response.success) {
           window.homebridge.toast.success('Subscription Cancelled', this.translateService.translations['toast.title_success']);
-          // ✅ Refresh UI after cancel
+          // Refresh UI after cancel
           this.userDataService.getUserData(this.linkDomain, this.pluginConfig.token).subscribe({
             next: updatedData => {
               this.userData = updatedData;
+              this.userDataChange.emit(this.userData); // Emit updated userData
               console.log('✅ Refreshed user data after cancel:', updatedData);
             },
             error: err => {
@@ -110,7 +112,6 @@ export class UserDataComponent implements OnInit {
         this.isCancelling = false; // Stop spinner
       });
   }
-
 
   toggleCreateSubscriptionExpand(): void {
     this.createSubscriptionExpanded = !this.createSubscriptionExpanded;
@@ -160,7 +161,6 @@ export class UserDataComponent implements OnInit {
         console.error('PayPal script failed to load', error);
         this.isLoadingPayPalButtons = false;
       });
-
   }
 
   async renderPayPalButton(plan: any, index: number): Promise<void> {
@@ -215,6 +215,7 @@ export class UserDataComponent implements OnInit {
           this.userDataService.getUserData(this.linkDomain, this.pluginConfig.token).subscribe({
             next: updatedData => {
               this.userData = updatedData;
+              this.userDataChange.emit(this.userData); // Emit updated userData
               console.log('✅ Refreshed user data after subscription:', updatedData);
             },
             error: err => {

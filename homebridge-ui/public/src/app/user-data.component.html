@@ -1,6 +1,6 @@
 <div *ngIf="userData?.subscriptionRequired" class="card card-body w-100 mt-3">
   <p class="text-body-secondary">
-    <span class=" fw-bold">Account Status:</span> {{ userData.accountStatus.text }}
+    <span class="fw-bold">Account Status:</span> {{ userData.accountStatus.text }}
   </p>
 
   <!-- Create Subscription -->
@@ -9,20 +9,16 @@
       <legend class="legend" (click)="toggleCreateSubscriptionExpand()">
         Create Subscription
       </legend>
-
       <div *ngIf="createSubscriptionExpanded">
         <div class="card-body pt-3 px-0">
-
           <p class="text-body-secondary">
-            <span class=" fw-bold">Subscription Start Date:</span> {{ userData.startDate | dateToString }}
+            <span class="fw-bold">Subscription Start Date:</span> {{ userData.startDate | dateToString }}
           </p>
           <div class="position-relative">
-
             <!-- Spinner overlay -->
             <div *ngIf="isLoadingPayPalButtons" class="loading-overlay">
               <i class="fas fa-fw fa-spinner fa-spin fa-2x"></i>
             </div>
-
             <!-- PayPal Plans always rendered -->
             <div *ngFor="let plan of userData.paypalPlans; let i = index" class="paypal-plan-container">
               <div class="card shadow-sm mb-2">
@@ -30,7 +26,6 @@
                   <div class="paypal-text">
                     <h5 class="card-title">{{ plan.name }}</h5>
                     <p class="card-text text-body-secondary">{{ plan.description }}</p>
-
                   </div>
                   <div [id]="'paypal-button-container-' + i" class="paypal-button"></div>
                 </div>
@@ -39,75 +34,69 @@
           </div>
         </div>
       </div>
-
     </fieldset>
   </div>
 
   <!-- Subscription Details -->
-
   <div *ngIf="userData.subscriptionActive" class="mt-3">
     <fieldset [ngClass]="{ 'expandable': !subscriptionDetailsExpanded, 'expanded': subscriptionDetailsExpanded }">
       <legend (click)="toggleSubscriptionDetailsExpand()" class="legend">
         Subscription Details
       </legend>
-
       <div *ngIf="subscriptionDetailsExpanded">
         <div class="card-body pt-3 px-0 position-relative">
-
           <!-- Spinner Overlay when cancelling subscription -->
           <div *ngIf="isCancelling" class="loading-overlay">
             <i class="fas fa-fw fa-spinner fa-spin fa-2x"></i>
           </div>
-
           <!-- Confirm Cancel Modal -->
-          <div *ngIf="showConfirmModal" class="confirm-overlay">
-            <div class="card p-3 confirm-dialog">
-              <p class="mb-3">Are you sure you want to cancel your subscription?</p>
-              <div class="text-end">
-                <button class="btn btn-secondary me-2" (click)="showConfirmModal = false" [disabled]="isCancelling">
-                  No
+          <div *ngIf="showConfirmModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.4); z-index: 1050;">
+            <div class="card shadow border-0 p-4" style="max-width: 400px; width: 100%; border-radius: 12px;">
+              <h5 class="fw-bold mb-3 text-center">Cancel your subscription?</h5>
+              <p class="mb-2 text-center">Are you sure you want to cancel your <strong>{{ userData.paypalPlanName }}</strong> subscription? This action cannot be undone.</p>
+              <p class="mb-4 text-center text-muted small">Your service will continue until the next payment date on {{ userData.expiryDate | dateToString }}.</p>
+              <div class="d-flex justify-content-center gap-3">
+                <button class="btn btn-outline-secondary px-4" (click)="showConfirmModal = false" [disabled]="isCancelling">
+                  Keep Subscription
                 </button>
-                <button class="btn btn-danger" (click)="confirmCancel()" [disabled]="isCancelling">
-                  {{ isCancelling ? 'Cancelling...' : 'Yes, Cancel' }}
+                <button class="btn btn-danger px-4" (click)="confirmCancel()" [disabled]="isCancelling">
+                  {{ isCancelling ? 'Cancelling...' : 'Cancel Subscription' }}
                 </button>
               </div>
             </div>
           </div>
-
           <!-- Table and Cancel Button -->
           <div class="d-flex justify-content-between align-items-start flex-wrap w-100">
             <table class="table table-borderless mb-0 subscription-table" style="width: auto;">
               <tbody>
                 <tr>
-                  <th class=" pe-3 text-nowrap">Plan:</th>
+                  <th class="pe-3 text-nowrap">Plan:</th>
                   <td class="text-body-secondary">{{ userData.paypalPlanName }}</td>
                 </tr>
                 <tr>
-                  <th class=" pe-3 text-nowrap">Description:</th>
+                  <th class="pe-3 text-nowrap">Description:</th>
                   <td class="text-body-secondary">{{ userData.paypalPlanDescription }}</td>
                 </tr>
                 <tr>
-                  <th class=" pe-3 text-nowrap">Subscription ID:</th>
+                  <th class="pe-3 text-nowrap">Subscription ID:</th>
                   <td class="text-body-secondary">
                     <span>
-                      {{ userData.paypalSubscriptionID }}&nbsp;
+                      {{ userData.paypalSubscriptionID }} 
                     </span>
                   </td>
                 </tr>
                 <tr>
-                  <th class=" pe-3 text-nowrap">Next Payment Date:</th>
+                  <th class="pe-3 text-nowrap">Next Payment Date:</th>
                   <td class="text-body-secondary">{{ userData.expiryDate | dateToString }}</td>
                 </tr>
               </tbody>
             </table>
-
             <div class="ms-3">
               <button class="btn btn-primary" (click)="showConfirmModal = true">
                 Cancel Subscription
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </fieldset>

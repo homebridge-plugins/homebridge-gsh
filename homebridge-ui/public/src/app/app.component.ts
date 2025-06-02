@@ -7,7 +7,7 @@ import { SERVER_ADDRESS } from '../../../../src/settings';
 import { TranslateService } from './translate.service';
 import { UserDataService } from './user-data.service';
 
-const jwtHelper = new JwtHelperService()
+const jwtHelper = new JwtHelperService();
 
 @Component({
   selector: 'app-root',
@@ -29,8 +29,7 @@ export class AppComponent implements OnInit, OnDestroy {
   public justLinked = false;
 
   public ready = false;
-
-  // public userData: UserDataResponse;
+  public userData: any;
 
   constructor(
     public translateService: TranslateService,
@@ -131,6 +130,10 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
     }
+  };
+
+  onUserDataChange(userData: any) {
+    this.userData = userData;
   }
 
   ngOnDestroy() {
@@ -142,13 +145,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   copyToClipboard(input: string): void {
-    navigator.clipboard.writeText(input)
-      .then(() => {
+    navigator.clipboard.writeText(input).then(
+      () => {
         window.homebridge.toast.success(`Copied ${input} to clipboard`);
-      })
-      .catch(err => {
+      },
+      (err) => {
         console.error('❌ Failed to copy:', err);
         window.homebridge.toast.error('Error', 'Failed to copy');
-      });
+      }
+    );
   }
 }

@@ -7,6 +7,7 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 ### Changes
 
 - Improvents to dark mode support within the UI
+- Added new Plugin Config element - 'Google Smart Home' which shows the linking status to Google Home
 - Added two new config options to support more complex configurations, Discovery Wait and Discovery Timeout #19
 - Add activeThermostatMode to thermostat query response #17, tks @rukuh
 

@@ -24,27 +24,42 @@
       <button class="btn btn-primary btn-lg" (click)="linkAccount()">
         {{ 'plugins.settings.custom.homebridge-gsh.label_link_account' | translate }}
       </button>
-
-
     </div>
 
     <div *ngIf="pluginConfig.token" class="mt-1">
-      <div class="text-center">
-        <h4 class="mt-2">
-          <img *ngIf="linkType === 'google'" class="invert-on-dark" src="assets/google-logo.svg" alt="Google Logo"
-            style="height: 40px;" />
-          <img *ngIf="linkType === 'github'" class="invert-on-dark" src="assets/github-mark.svg" alt="GitHub Logo"
-            style="height: 40px;" />
-
-          {{ linkType | titlecase }} {{ 'plugins.settings.custom.homebridge-gsh.label_account_linked' | translate }}
-        </h4>
-        <p class="small fw-bold">
-          <span>User ID:</span>
-          <span class="copyable text-break">{{ user_id }}</span>
-        </p>
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-3">
+          <h4 class="card-title d-flex align-items-center justify-content-center mb-3">
+            <img *ngIf="linkType === 'google'" class="invert-on-dark me-2" src="assets/google-logo.svg" alt="Google Logo"
+              style="height: 48px;" />
+            <img *ngIf="linkType === 'github'" class="invert-on-dark me-2" src="assets/github-mark.svg" alt="GitHub Logo"
+              style="height: 48px;" />
+            <span>{{ linkType | titlecase }} {{ 'plugins.settings.custom.homebridge-gsh.label_account_linked' | translate }}</span>
+          </h4>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center p-2">
+              <span class="fw-bold">User ID:</span>
+              <span class="copyable text-break small">{{ user_id }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center p-2" *ngIf="userData">
+              <span class="fw-bold">
+                <img class="invert-on-dark" src="assets/google-home.svg" alt="Google Home Icon"
+                  style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />
+                Google Smart Home:
+              </span>
+              <span class="badge" [ngClass]="userData.gshNotLinked ? 'bg-danger' : 'bg-success'">
+                {{ userData.gshNotLinked ? 'Not Linked' : 'Linked' }}
+              </span>
+            </li>
+          </ul>
+        </div>
       </div>
 
-      <app-user-data [pluginConfig]="pluginConfig" [linkDomain]="linkDomain" [user_id]="user_id">
+      <app-user-data 
+        [pluginConfig]="pluginConfig" 
+        [linkDomain]="linkDomain" 
+        [user_id]="user_id"
+        (userDataChange)="onUserDataChange($event)">
       </app-user-data>
 
       <div class="mt-3" *ngIf="justLinked">
@@ -57,9 +72,7 @@
     </div>
 
     <div class="mt-3" *ngIf="pluginConfig.token">
-      Search for
-      Homebridge in the Google Home app
-      and link the action to complete setup.
+      Search for Homebridge in the Google Home app and link the action to complete setup.
     </div>
   </div>
 </div>
