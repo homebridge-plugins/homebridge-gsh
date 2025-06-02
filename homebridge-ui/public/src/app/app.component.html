@@ -45,7 +45,7 @@
               <span class="fw-bold">
                 <img class="invert-on-dark" src="assets/google-home.svg" alt="Google Home Icon"
                   style="width: 24px; height: 24px; vertical-align: middle; margin-right: 8px;" />
-                Google Smart Home:
+                Google Home App:
               </span>
               <span class="badge" [ngClass]="userData.gshNotLinked ? 'bg-danger' : 'bg-success'">
                 {{ userData.gshNotLinked ? 'Not Linked' : 'Linked' }}
@@ -53,6 +53,10 @@
             </li>
           </ul>
         </div>
+      </div>
+
+      <div *ngIf="pluginConfig.token && userData?.gshNotLinked" class="alert alert-info mt-3" role="alert">
+        <strong>Complete Setup:</strong> Search for <strong>Homebridge</strong> in the Google Home app and link the action to finalize your setup.
       </div>
 
       <app-user-data 
@@ -69,10 +73,6 @@
           </strong>
         </p>
       </div>
-    </div>
-
-    <div class="mt-3" *ngIf="pluginConfig.token">
-      Search for Homebridge in the Google Home app and link the action to complete setup.
     </div>
   </div>
 </div>
