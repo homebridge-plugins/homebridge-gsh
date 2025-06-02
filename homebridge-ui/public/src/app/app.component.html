@@ -55,8 +55,16 @@
         </div>
       </div>
 
-      <div *ngIf="pluginConfig.token && userData?.gshNotLinked" class="alert alert-info mt-3" role="alert">
+      <div *ngIf="pluginConfig.token && userData && userData.gshNotLinked" class="alert alert-info mt-3" role="alert" style="text-align: left;">
         <strong>Complete Setup:</strong> Search for <strong>Homebridge</strong> in the Google Home app and link the action to finalize your setup.
+        <br>
+        <div>
+          <span style="white-space: nowrap;">
+            📖 <a href="https://github.com/homebridge-plugins/homebridge-gsh/wiki#add-homebridge-to-google-home-app" target="_blank" rel="noopener noreferrer">
+              Further instructions
+            </a>
+          </span>
+        </div>
       </div>
 
       <app-user-data 
