@@ -1,51 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
-
-.pointer {
-  cursor: pointer;
+.github-logo-dark path {
+  fill: #000000; /* Black for light mode */
 }
 
-/* Default light/dark adaptive styles */
-body {
-  color: var(--bs-body-color);
-  background-color: var(--bs-body-bg);
+.dark-mode .github-logo-dark path {
+  fill: #ffffff !important; /* White for dark mode, with !important to override potential conflicts */
 }
 
-/* Optional for containers and cards */
-.card,
-.modal-content,
-.accordion-item {
-  background-color: var(--bs-secondary-bg);
-  color: var(--bs-body-color);
+/* Fallback filter for additional visibility */
+.dark-mode .github-logo-dark {
+  filter: brightness(100); /* Brighten the SVG in dark mode as a fallback */
 }
 
-/* Optional: override hardcoded light backgrounds */
-.copyable {
-  background-color: var(--bs-secondary-bg);
-  color: var(--bs-body-color);
-}
-
-/* For full dark-mode override if Bootstrap variables aren't applied */
-@media (prefers-color-scheme: dark) {
-  body {
-    background-color: #1e1e1e;
-    color: #ffffff;
-  }
-
-  .card,
-  .modal-content,
-  .accordion-item {
-    background-color: #2c2c2c;
-    color: #ffffff;
-  }
-
-  .copyable {
-    background-color: #333333;
-    color: #ffffff;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  img.invert-on-dark {
-    filter: invert(1) hue-rotate(180deg);
-  }
+app-root {
+   background-color: #000000;
 }

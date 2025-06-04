@@ -51,6 +51,10 @@
                 {{ userData.gshNotLinked ? 'Not Linked' : 'Linked' }}
               </span>
             </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center p-2" *ngIf="userData && userData.subscriptionRequired">
+              <span class="fw-bold">Account Status:</span>
+              <span class="copyable text-break small">{{ userData.accountStatus.text }}</span>
+            </li>
           </ul>
         </div>
       </div>
