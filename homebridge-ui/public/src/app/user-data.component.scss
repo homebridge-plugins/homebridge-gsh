@@ -1,0 +1,29 @@
+/* Chevron before expandable / expanded legends */
+.expandable>legend::before,
+.expanded>legend::before {
+  content: '\f054';
+  /* right-chevron for collapsed */
+  font-family: 'Font Awesome 6 Free', 'FontAwesome';
+  font-weight: 900;
+  padding-right: 0.3em;
+}
+
+.expanded>legend::before {
+  content: '\f078';
+  /* down-chevron for expanded */
+  padding-right: 0.2em;
+}
+
+/* Fieldset and Legend Adjustments */
+fieldset {
+  padding: 0;
+  border: none;
+  /* no border */
+}
+
+legend {
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  margin-bottom: 0.5rem;
+}

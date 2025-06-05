@@ -1,16 +1,15 @@
-.github-logo-dark path {
-  fill: #000000; /* Black for light mode */
+.logo-dark path {
+  fill: #000000;
+  /* Black for light mode */
 }
 
-.dark-mode .github-logo-dark path {
-  fill: #ffffff !important; /* White for dark mode, with !important to override potential conflicts */
+.dark-mode .logo-dark path {
+  fill: #ffffff !important;
+  /* White for dark mode, with !important to override potential conflicts */
 }
 
 /* Fallback filter for additional visibility */
-.dark-mode .github-logo-dark {
-  filter: brightness(100); /* Brighten the SVG in dark mode as a fallback */
-}
-
-app-root {
-   background-color: #000000;
+.dark-mode .logo-dark {
+  filter: brightness(100);
+  /* Brighten the SVG in dark mode as a fallback */
 }
