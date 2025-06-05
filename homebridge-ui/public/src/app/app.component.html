@@ -15,7 +15,7 @@
 
   <div *ngIf="env.enableAccessories">
     <h6>
-      <p [innerHTML]="'plugins.settings.custom.homebridge-gsh.message_about' | translate"></p>
+      <span [innerHTML]="'plugins.settings.custom.homebridge-gsh.message_about' | translate"></span>
     </h6>
     <p *ngIf="!pluginConfig.token" translate="plugins.settings.custom.homebridge-gsh.message_account_link_required"></p>
 
