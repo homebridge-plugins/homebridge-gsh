@@ -1,21 +1,24 @@
 /* Chevron before expandable / expanded legends */
-.expandable > legend::before,
-.expanded > legend::before {
-  content: '\f054'; /* right-chevron for collapsed */
+.expandable>legend::before,
+.expanded>legend::before {
+  content: '\f054';
+  /* right-chevron for collapsed */
   font-family: 'Font Awesome 6 Free', 'FontAwesome';
   font-weight: 900;
   padding-right: 0.3em;
 }
 
-.expanded > legend::before {
-  content: '\f078'; /* down-chevron for expanded */
+.expanded>legend::before {
+  content: '\f078';
+  /* down-chevron for expanded */
   padding-right: 0.2em;
 }
 
 /* Fieldset and Legend Adjustments */
 fieldset {
   padding: 0;
-  border: none; /* no border */
+  border: none;
+  /* no border */
 }
 
 legend {
@@ -23,124 +26,4 @@ legend {
   cursor: pointer;
   user-select: none;
   margin-bottom: 0.5rem;
-}
-
-/* Adjust Card Body */
-.card-body {
-  padding: 1rem;
-}
-
-/* Subscription Button Styling */
-.paypal-button {
-  min-width: 150px;
-}
-
-/* Fix Plan Cards */
-.paypal-plan-container .card {
-  width: 100%;
-}
-
-/* Confirm Cancel Overlay */
-.confirm-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1050;
-}
-
-.confirm-dialog {
-  background: white;
-  padding: 2rem;
-  border-radius: 0.5rem;
-  max-width: 400px;
-  width: 90%;
-}
-
-/* Table inside Subscription Details */
-table {
-  margin-bottom: 0;
-}
-
-th,
-td {
-  vertical-align: top;
-}
-
-.position-relative {
-  position: relative;
-}
-
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.6); // light semi-transparent background
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: all;
-  cursor: wait;
-}
-
-.loading-overlay i {
-  font-size: 2rem;
-}
-
-.copyable {
-  display: inline-flex;
-  align-items: center;
-  background-color: #f0f0f0; /* light gray background */
-  padding: 2px 6px;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.copyable:hover {
-  background-color: #d6d6d6; /* darker gray on hover */
-  text-decoration: none;
-}
-
-.copyable i {
-  font-size: 0.9rem; /* slightly smaller icon */
-  opacity: 0.7;
-}
-
-fieldset.expandable:not(.expanded) {
-  margin: 0;
-  padding: 0;
-  border: none;
-}
-
-table.table-sm th, table.table-sm td {
-  vertical-align: middle;
-}
-
-.subscription-table th {
-  font-size: 1rem;
-  font-weight: 700; /* Bold labels */
-  line-height: 1;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-.subscription-table td {
-  font-size: 1rem;
-  font-weight: 300; /* Light values */
-  line-height: 1;
-  padding-top: 0.25rem;
-  padding-bottom: 0.25rem;
-}
-
-.inline-link {
-  white-space: nowrap;
 }

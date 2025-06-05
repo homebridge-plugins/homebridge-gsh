@@ -1,8 +1,4 @@
 <div *ngIf="userData?.subscriptionRequired" class="card card-body w-100 mt-3">
-  <p class="text-body-secondary">
-    <span class="fw-bold">Account Status:</span> {{ userData.accountStatus.text }}
-  </p>
-
   <!-- Create Subscription -->
   <div *ngIf="!userData.subscriptionActive" class="mt-3">
     <fieldset [ngClass]="{ 'expandable': !createSubscriptionExpanded, 'expanded': createSubscriptionExpanded }">
@@ -11,7 +7,7 @@
       </legend>
       <div *ngIf="createSubscriptionExpanded">
         <div class="card-body pt-3 px-0">
-          <p class="text-body-secondary">
+          <p>
             <span class="fw-bold">Subscription Start Date:</span> {{ userData.startDate | dateToString }}
           </p>
           <div class="position-relative">
@@ -25,7 +21,7 @@
                 <div class="card-body d-flex align-items-center justify-content-between">
                   <div class="paypal-text">
                     <h5 class="card-title">{{ plan.name }}</h5>
-                    <p class="card-text text-body-secondary">{{ plan.description }}</p>
+                    <p class="card-text">{{ plan.description }}</p>
                   </div>
                   <div [id]="'paypal-button-container-' + i" class="paypal-button"></div>
                 </div>
@@ -50,13 +46,18 @@
             <i class="fas fa-fw fa-spinner fa-spin fa-2x"></i>
           </div>
           <!-- Confirm Cancel Modal -->
-          <div *ngIf="showConfirmModal" class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: rgba(0,0,0,0.4); z-index: 1050;">
+          <div *ngIf="showConfirmModal"
+            class="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+            style="background: rgba(0,0,0,0.4); z-index: 1050;">
             <div class="card shadow border-0 p-4" style="max-width: 400px; width: 100%; border-radius: 12px;">
               <h5 class="fw-bold mb-3 text-center">Cancel your subscription?</h5>
-              <p class="mb-2 text-center">Are you sure you want to cancel your <strong>{{ userData.paypalPlanName }}</strong> subscription? This action cannot be undone.</p>
-              <p class="mb-4 text-center text-muted small">Your service will continue until the next payment date on {{ userData.expiryDate | dateToString }}.</p>
+              <p class="mb-2 text-center">Are you sure you want to cancel your <strong>{{ userData.paypalPlanName
+                  }}</strong> subscription? This action cannot be undone.</p>
+              <p class="mb-4 text-center small">Your service will continue until the next billing date on {{
+                userData.expiryDate | dateToString }}.</p>
               <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-outline-secondary px-4" (click)="showConfirmModal = false" [disabled]="isCancelling">
+                <button class="btn btn-outline-secondary px-4" (click)="showConfirmModal = false"
+                  [disabled]="isCancelling">
                   Keep Subscription
                 </button>
                 <button class="btn btn-danger px-4" (click)="confirmCancel()" [disabled]="isCancelling">
@@ -71,23 +72,23 @@
               <tbody>
                 <tr>
                   <th class="pe-3 text-nowrap">Plan:</th>
-                  <td class="text-body-secondary">{{ userData.paypalPlanName }}</td>
+                  <td>{{ userData.paypalPlanName }}</td>
                 </tr>
                 <tr>
                   <th class="pe-3 text-nowrap">Description:</th>
-                  <td class="text-body-secondary">{{ userData.paypalPlanDescription }}</td>
+                  <td>{{ userData.paypalPlanDescription }}</td>
                 </tr>
                 <tr>
                   <th class="pe-3 text-nowrap">Subscription ID:</th>
-                  <td class="text-body-secondary">
+                  <td>
                     <span>
                       {{ userData.paypalSubscriptionID }} 
                     </span>
                   </td>
                 </tr>
                 <tr>
-                  <th class="pe-3 text-nowrap">Next Payment Date:</th>
-                  <td class="text-body-secondary">{{ userData.expiryDate | dateToString }}</td>
+                  <th class="pe-3 text-nowrap">Next Billing Date:</th>
+                  <td>{{ userData.expiryDate | dateToString }}</td>
                 </tr>
               </tbody>
             </table>
