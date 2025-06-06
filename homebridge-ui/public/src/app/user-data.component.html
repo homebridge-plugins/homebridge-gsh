@@ -53,8 +53,8 @@
               <h5 class="fw-bold mb-3 text-center">Cancel your subscription?</h5>
               <p class="mb-2 text-center">Are you sure you want to cancel your <strong>{{ userData.paypalPlanName
                   }}</strong> subscription? This action cannot be undone.</p>
-              <p class="mb-4 text-center small">Your service will continue until the next billing date on {{
-                userData.expiryDate | dateToString }}.</p>
+              <p class="mb-4 text-center small">Your service will continue until the next billing date on <strong>{{
+                  userData.expiryDate | dateToString }}</strong>.</p>
               <div class="d-flex justify-content-center gap-3">
                 <button class="btn btn-outline-secondary px-4" (click)="showConfirmModal = false"
                   [disabled]="isCancelling">

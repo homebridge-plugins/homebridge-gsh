@@ -1,15 +1,50 @@
-.logo-dark path {
+.invert-on-dark path {
   fill: #000000;
   /* Black for light mode */
 }
 
-.dark-mode .logo-dark path {
+.dark-mode .invert-on-dark path {
   fill: #ffffff !important;
   /* White for dark mode, with !important to override potential conflicts */
 }
 
 /* Fallback filter for additional visibility */
-.dark-mode .logo-dark {
+.dark-mode .invert-on-dark {
   filter: brightness(100);
   /* Brighten the SVG in dark mode as a fallback */
+}
+
+// Override default font size for modal content
+
+.modal-content {
+  font-size: inherit !important;
+}
+
+b,
+strong {
+  font-weight: 700 !important;
+  /* Ensure bold text is consistently styled */
+}
+
+td {
+  color: inherit !important;
+}
+
+.subscription-table th {
+  font-size: 1rem;
+  font-weight: 700;
+  /* Bold labels */
+  line-height: 1;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.subscription-table td {
+  font-size: 1rem;
+  font-weight: 300;
+  // color: var(--bs-body-color) !important;
+  /* Light values */
+  line-height: 1;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
 }
