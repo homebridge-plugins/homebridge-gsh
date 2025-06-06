@@ -2,7 +2,7 @@
 
 All notable changes to `homebridge-gsh` will be documented in this file. This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## v4.0.1 (2025-05-12)
+## v4.0.1 (2025-06-06)
 
 ### Changes
 
