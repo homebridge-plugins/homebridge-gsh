@@ -1,7 +1,7 @@
 {
   "name": "homebridge-gsh",
   "displayName": "Homebridge Google Smart Home",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Google Smart Home",
   "homepage": "https://github.com/homebridge-plugins/homebridge-gsh/blob/latest/README.md",
   "license": "GPL-3.0",
@@ -28,7 +28,7 @@
   "main": "dist/index.js",
   "engines": {
     "homebridge": "^1.6.0 || ^2.0.0-beta.0",
-    "node": "^18.20.4 || ^20.15.1 || ^22.0.0"
+    "node": "^18.20.4 || ^20.15.1 || ^22.0.0 || ^24.0.0"
   },
   "scripts": {
     "watch": "nodemon",
