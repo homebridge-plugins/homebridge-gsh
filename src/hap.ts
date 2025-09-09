@@ -106,6 +106,8 @@ export class Hap {
     Characteristic.OccupancyDetected,
     Characteristic.CurrentMediaState,
     Characteristic.MotionDetected,
+    Characteristic.StatusLowBattery,
+    Characteristic.BatteryLevel,
   ];
 
   instanceBlacklist: Array<string> = [];
