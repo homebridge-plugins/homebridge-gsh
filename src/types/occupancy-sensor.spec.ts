@@ -23,7 +23,7 @@ describe('occupancySensor', () => {
       const response = occupancySensor.query(occupancySensorTemp);
       expect(response).toBeDefined();
       expect(response.occupancy).toBeDefined();
-      expect(response.occupancy === 'OCCUPIED' || response.occupancy === 'UNOCCUPIED');
+      expect(response.occupancy).toMatch(/^(OCCUPIED|UNOCCUPIED)$/);
       expect(response.online).toBeDefined();
       // await sleep(10000)
     });
