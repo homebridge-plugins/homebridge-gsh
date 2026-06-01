@@ -8,6 +8,7 @@ import { Characteristic } from './hap-types';
 import { PluginConfig } from './interfaces';
 import { Log } from './logger';
 import { Door } from './types/door';
+import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor';
 
 import type { API } from 'homebridge';
 import { createHash } from 'node:crypto';
@@ -25,6 +26,7 @@ import { ContactSensor } from './types/contact-sensor';
 import { OccupancySensor } from './types/occupancy-sensor';
 import { MotionSensor } from './types/motion-sensor';
 import { TemperatureSensor } from './types/temperature-sensor';
+import { SmokeSensor } from './types/smoke-sensor';
 import { Battery } from './types/battery-status';
 import { Thermostat } from './types/thermostat';
 import { Window } from './types/window';
@@ -69,6 +71,8 @@ export class Hap {
     Speaker: this.dummy,
     InputSource: this.dummy,
     ContactSensor: new ContactSensor(),
+    CarbonMonoxideSensor: new CarbonMonoxideSensor(),
+    SmokeSensor: new SmokeSensor(),
     OccupancySensor: new OccupancySensor(),
     Battery: new Battery(),
   };
@@ -103,9 +107,11 @@ export class Hap {
     Characteristic.ActiveIdentifier,
     Characteristic.Mute,
     Characteristic.ContactSensorState,
+    Characteristic.CarbonMonoxideDetected,
     Characteristic.OccupancyDetected,
     Characteristic.CurrentMediaState,
     Characteristic.MotionDetected,
+    Characteristic.SmokeDetected,
     Characteristic.StatusLowBattery,
     Characteristic.BatteryLevel,
   ];
