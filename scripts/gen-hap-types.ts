@@ -1,6 +1,6 @@
+import { Characteristic, Service } from '@homebridge/hap-nodejs';
 import fs from 'node:fs';
 import path from 'node:path';
-import { Characteristic, Service } from 'hap-nodejs';
 
 /** Generate Service Types */
 

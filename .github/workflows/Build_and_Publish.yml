@@ -25,7 +25,7 @@ jobs:
 
     steps:
     # checkout repo
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # get branch / tag name
     - name: Get Branch / Tag Name
@@ -75,7 +75,7 @@ jobs:
     needs: [publish_prod_release]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Create Release
       uses: softprops/action-gh-release@v2
       env:

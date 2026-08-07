@@ -1,4 +1,4 @@
-import { HapClient, ServiceType } from '@homebridge/hap-client';
+import { Config, HapClient, ServiceType } from '@homebridge/hap-client';
 import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
 import * as fs from 'fs';
 import { Subject } from 'rxjs';
@@ -12,6 +12,8 @@ import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor';
 
 import type { API } from 'homebridge';
 import { createHash } from 'node:crypto';
+import { Battery } from './types/battery-status';
+import { ContactSensor } from './types/contact-sensor';
 import { Fan } from './types/fan';
 import { Fanv2 } from './types/fan-v2';
 import { GarageDoorOpener } from './types/garage-door-opener';
@@ -19,12 +21,11 @@ import { HeaterCooler } from './types/heater-cooler';
 import { HumiditySensor } from './types/humidity-sensor';
 import { Lightbulb } from './types/lightbulb';
 import { LockMechanism } from './types/lock-mechanism';
+import { MotionSensor } from './types/motion-sensor';
+import { OccupancySensor } from './types/occupancy-sensor';
 import { SecuritySystem } from './types/security-system';
 import { Switch } from './types/switch';
 import { Television } from './types/television';
-import { ContactSensor } from './types/contact-sensor';
-import { OccupancySensor } from './types/occupancy-sensor';
-import { MotionSensor } from './types/motion-sensor';
 import { TemperatureSensor } from './types/temperature-sensor';
 import { SmokeSensor } from './types/smoke-sensor';
 import { Battery } from './types/battery-status';
@@ -48,8 +49,8 @@ export class Hap {
 
   public ready: boolean;
 
-  private dummy = () => {};
-  
+  private dummy = () => { };
+
   /* GSH Supported types */
   types = {
     Door: new Door(),
@@ -74,6 +75,7 @@ export class Hap {
     CarbonMonoxideSensor: new CarbonMonoxideSensor(),
     SmokeSensor: new SmokeSensor(),
     OccupancySensor: new OccupancySensor(),
+    MotionSensor: new MotionSensor(),
     Battery: new Battery(),
   };
 
@@ -164,8 +166,14 @@ export class Hap {
    */
 
   async discover() {
+    const hapConfig: Config = {
+      debug: this.config.debug,
+      instanceBlacklist: this.instanceBlacklist,
+      discoveryTimeout: this.configDiscoveryTimeout * 1000,
+    };
+
     this.hapClient = new HapClient({
-      config: this.config,
+      config: hapConfig,
       pin: this.pin,
       logger: this.log,
     });
@@ -445,7 +453,7 @@ export class Hap {
     if (!this.services.length) {
       return;
     }
-    this.services.filter((service) => 
+    this.services.filter((service) =>
       this.types?.[service.type]?.query,
     ).map((service) => {
       // if (!this.types[service.type]) {
