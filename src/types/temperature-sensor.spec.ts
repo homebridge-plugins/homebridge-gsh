@@ -1,8 +1,8 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { afterAll, describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
 import { Log } from '../logger';
-
 import { TemperatureSensor } from './temperature-sensor';
 
 class socketMock {
@@ -138,7 +138,7 @@ describe('temperatureSensor', () => {
     test('TemperatureSensor  - Error', async () => {
       expect.assertions(1);
       temperatureSensorTemp.serviceCharacteristics[0].setValue = setValueError;
-      expect(temperatureSensor.execute(temperatureSensorTemp, commandOnOff)).rejects.toThrow('Error setting value');
+      await expect(temperatureSensor.execute(temperatureSensorTemp, commandOnOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
     */

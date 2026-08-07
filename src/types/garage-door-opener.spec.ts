@@ -1,6 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { GarageDoorOpener } from './garage-door-opener';
-
 const garageDoorOpener = new GarageDoorOpener();
 
 describe('garageDoorOpener', () => {
@@ -63,7 +63,7 @@ describe('garageDoorOpener', () => {
     it('garageDoorOpener with OpenClose only - Error', async () => {
       expect.assertions(1);
       garageDoorOpenerServiceOpenClose.serviceCharacteristics[0].setValue = setValueError;
-      expect(garageDoorOpener.execute(garageDoorOpenerServiceOpenClose, commandOpen)).rejects.toThrow('Error setting value');
+      await expect(garageDoorOpener.execute(garageDoorOpenerServiceOpenClose, commandOpen)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

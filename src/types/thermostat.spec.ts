@@ -1,8 +1,8 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { afterAll, describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { Characteristic } from '../hap-types';
 import { PluginConfig } from '../interfaces';
-
 import { Log } from '../logger';
 
 import { Thermostat } from './thermostat';
@@ -145,7 +145,7 @@ describe('thermostat', () => {
       thermostatTemp.serviceCharacteristics.find(x => x.uuid === Characteristic.TargetHeatingCoolingState).setValue = setValueError;
       // thermostatTemp.serviceCharacteristics[0].setValue = setValueError;
       // const response = thermostat.execute(thermostatTemp, commandThermostatSetModeOff);
-      expect(thermostat.execute(thermostatTemp, commandThermostatSetModeOff)).rejects.toThrow('Error setting value');
+      await expect(thermostat.execute(thermostatTemp, commandThermostatSetModeOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

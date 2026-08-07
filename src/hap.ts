@@ -3,35 +3,32 @@ import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, 
 import * as fs from 'fs';
 import { Subject } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
-import { Characteristic } from './hap-types';
+import { Characteristic } from './hap-types.js';
 
-import { PluginConfig } from './interfaces';
-import { Log } from './logger';
-import { Door } from './types/door';
-import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor';
+import { PluginConfig } from './interfaces.js';
+import { Log } from './logger.js';
+import { Door } from './types/door.js';
 
 import type { API } from 'homebridge';
 import { createHash } from 'node:crypto';
-import { Battery } from './types/battery-status';
-import { ContactSensor } from './types/contact-sensor';
-import { Fan } from './types/fan';
-import { Fanv2 } from './types/fan-v2';
-import { GarageDoorOpener } from './types/garage-door-opener';
-import { HeaterCooler } from './types/heater-cooler';
-import { HumiditySensor } from './types/humidity-sensor';
-import { Lightbulb } from './types/lightbulb';
-import { LockMechanism } from './types/lock-mechanism';
-import { MotionSensor } from './types/motion-sensor';
-import { OccupancySensor } from './types/occupancy-sensor';
-import { SecuritySystem } from './types/security-system';
-import { Switch } from './types/switch';
-import { Television } from './types/television';
-import { TemperatureSensor } from './types/temperature-sensor';
-import { SmokeSensor } from './types/smoke-sensor';
-import { Battery } from './types/battery-status';
-import { Thermostat } from './types/thermostat';
-import { Window } from './types/window';
-import { WindowCovering } from './types/window-covering';
+import { Battery } from './types/battery-status.js';
+import { ContactSensor } from './types/contact-sensor.js';
+import { Fanv2 } from './types/fan-v2.js';
+import { Fan } from './types/fan.js';
+import { GarageDoorOpener } from './types/garage-door-opener.js';
+import { HeaterCooler } from './types/heater-cooler.js';
+import { HumiditySensor } from './types/humidity-sensor.js';
+import { Lightbulb } from './types/lightbulb.js';
+import { LockMechanism } from './types/lock-mechanism.js';
+import { MotionSensor } from './types/motion-sensor.js';
+import { OccupancySensor } from './types/occupancy-sensor.js';
+import { SecuritySystem } from './types/security-system.js';
+import { Switch } from './types/switch.js';
+import { Television } from './types/television.js';
+import { TemperatureSensor } from './types/temperature-sensor.js';
+import { Thermostat } from './types/thermostat.js';
+import { WindowCovering } from './types/window-covering.js';
+import { Window } from './types/window.js';
 
 export class Hap {
   socket;
@@ -286,8 +283,9 @@ export class Hap {
     for (const command of commands) {
       for (const device of command.devices) {
         const service = this.services.find(x => x.uniqueId === device.id);
-        this.log.debug(`Processing command ${command.execution[0].command} for ${device.id} and ${service.serviceName}`);
+
         if (service) {
+          this.log.debug(`Processing command ${command.execution[0].command} for ${device.id} and ${service.serviceName}`);
           // check if two factor auth is required, and if we have it
           if (this.config.twoFactorAuthPin && this.types[service.type].twoFactorRequired
             && this.types[service.type].is2faRequired(command)
@@ -324,6 +322,7 @@ export class Hap {
           }
         } else {
           this.log.error(`Device not found: ${device.id}`);
+          // this.log.debug(`Device not found in services list: ${JSON.stringify(this.services)}`);
           response.push({
             ids: [device.id],
             status: 'OFFLINE',

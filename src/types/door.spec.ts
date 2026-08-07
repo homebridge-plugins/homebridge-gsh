@@ -1,7 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { expect } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { Door } from './door';
-
 const door = new Door();
 
 describe('door', () => {
@@ -57,7 +56,7 @@ describe('door', () => {
     it('door with On/Off only - Error', async () => {
       expect.assertions(1);
       doorServiceOnOff.serviceCharacteristics[1].setValue = setValueError;
-      expect(door.execute(doorServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
+      await expect(door.execute(doorServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

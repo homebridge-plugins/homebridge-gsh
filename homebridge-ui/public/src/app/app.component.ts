@@ -15,8 +15,8 @@ const jwtHelper = new JwtHelperService();
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private linkDomain: string;
-  private linkUrl: string;
+  public linkDomain: string = '';
+  private linkUrl: string = '';
   private popup: Window;
   private originCheckInterval;
 
@@ -24,8 +24,8 @@ export class AppComponent implements OnInit, OnDestroy {
   public schema: PluginSchema;
   public env: ServerEnvMetadata['env'] = window.homebridge.serverEnv.env;
 
-  public linkType: string;
-  public user_id: string;
+  public linkType: string = '';
+  public user_id: string = '';
   public justLinked = false;
 
   public ready = false;

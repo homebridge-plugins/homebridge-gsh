@@ -1,7 +1,7 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Characteristic } from '../hap-types';
 import { LockMechanism } from './lock-mechanism';
-
 const lockMechanism = new LockMechanism();
 
 describe('lockMechanism', () => {
@@ -64,7 +64,7 @@ describe('lockMechanism', () => {
     it('lockMechanism with On/Off only - Error', async () => {
       expect.assertions(1);
       lockMechanismServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
-      expect(lockMechanism.execute(lockMechanismServiceOnOff, commandLock)).rejects.toThrow('Error setting value');
+      await expect(lockMechanism.execute(lockMechanismServiceOnOff, commandLock)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

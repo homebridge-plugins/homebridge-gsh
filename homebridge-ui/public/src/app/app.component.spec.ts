@@ -1,8 +1,9 @@
-import { TestBed } from '@angular/core/testing'
-import { MockHomebridgePluginUi } from '@homebridge/plugin-ui-utils/dist/ui.mock'
-import * as flushPromises from 'flush-promises'
+import { TestBed } from '@angular/core/testing';
+import { MockHomebridgePluginUi } from '@homebridge/plugin-ui-utils/dist/ui.mock';
+import flushPromises from 'flush-promises';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { AppComponent } from './app.component'
+import { AppComponent } from './app.component';
 
 describe('appComponent', () => {
   beforeEach(async () => {
@@ -22,7 +23,7 @@ describe('appComponent', () => {
   it('should request the plugin config', async () => {
     // setup mocks
     window.homebridge = new MockHomebridgePluginUi()
-    spyOn(window.homebridge, 'getPluginConfig')
+    vi.spyOn(window.homebridge, 'getPluginConfig')
 
     const fixture = TestBed.createComponent(AppComponent)
     fixture.detectChanges()

@@ -6,7 +6,7 @@ import * as fs from 'fs-extra';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import { Plugin } from './main';
+import { Plugin } from './main.js';
 
 const configPath = path.resolve(os.homedir(), '.homebridge', 'config.json');
 const homebridgeConfig = fs.readJsonSync(configPath);

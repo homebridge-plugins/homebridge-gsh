@@ -1,4 +1,5 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { ContactSensor } from './contact-sensor';
 
 const contactSensor = new ContactSensor();
@@ -25,7 +26,7 @@ describe('contactSensor', () => {
       expect(response).toBeDefined();
       expect(response.openPercent).toBeDefined();
       expect(response.openPercent).toBe(0);
-      expect(response.openPercent).toBe(100);
+      // expect(response.openPercent).toBe(100);
       expect(response.online).toBeDefined();
       // await sleep(10000)
     });

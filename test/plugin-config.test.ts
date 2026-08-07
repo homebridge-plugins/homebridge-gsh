@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { Builder, By, until, WebDriver } from 'selenium-webdriver';
 import chrome from 'selenium-webdriver/chrome';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 
 import dotenv from 'dotenv';
 
@@ -74,7 +75,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await driver.quit();
+  if (driver) {
+    await driver.quit();
+  }
 });
 
 async function openPluginConfig(driver: WebDriver) {

@@ -1,7 +1,7 @@
 import { ServiceType } from '@homebridge/hap-client';
 import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
-import { Characteristic } from '../hap-types';
-import { ghToHap, ghToHap_t } from './ghToHapTypes';
+import { Characteristic } from '../hap-types.js';
+import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class OccupancySensor extends ghToHap implements ghToHap_t {
   sync(service: ServiceType) {
@@ -21,7 +21,7 @@ export class OccupancySensor extends ghToHap implements ghToHap_t {
   query(service: ServiceType) {
     return {
       online: true,
-      occupancy: service.serviceCharacteristics.find(x => x.uuid === Characteristic.OccupancyDetected)?.value ? 'OCCUPIED': 'UNOCCUPIED',
+      occupancy: service.serviceCharacteristics.find(x => x.uuid === Characteristic.OccupancyDetected)?.value ? 'OCCUPIED' : 'UNOCCUPIED',
     } as any;
   }
 

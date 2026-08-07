@@ -1,6 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Window } from './window';
-
 const window = new Window();
 
 describe('window', () => {
@@ -56,7 +56,7 @@ describe('window', () => {
     it('window with On/Off only - Error', async () => {
       expect.assertions(1);
       windowServiceOnOff.serviceCharacteristics[1].setValue = setValueError;
-      expect(window.execute(windowServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
+      await expect(window.execute(windowServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

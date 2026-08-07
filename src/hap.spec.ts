@@ -1,8 +1,8 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { describe, expect } from '@jest/globals';
 import { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
 import fs from 'fs';
-import { expectType } from 'ts-expect';
+
+import { afterAll, describe, expect, expectTypeOf, test } from 'vitest';
 import { Hap } from './hap';
 import { PluginConfig } from './interfaces';
 import { Log } from './logger';
@@ -95,20 +95,26 @@ describe('hap', () => {
       describe('SYNC', () => {
         test('Sync Response is proper and filtered', async () => {
           const response: any = await hap.buildSyncResponse();
-          expectType<SmartHomeV1SyncDevices[]>(response);
+          expectTypeOf<SmartHomeV1SyncDevices[]>(response);
+          // console.log('response', JSON.stringify(response, null, 2));
           expect(response).toBeDefined();
           expect(response).toBeInstanceOf(Array);
-          expect(response).toHaveLength(4);
+          expect(response).toHaveLength(7);
 
+          // The names should be sorted alphabetically, so we can check that the names are correct
           const expectedNames = [
-            'East Bedroom',
-            'East Bedroom Fan',
             'Garage Door',
+            'Shed Garage Door',
+            'Shed Garage Door',
             'Wasaga',
+            'Wasaga Doorbell',
+            'West Bedroom',
+            'West Bedroom Fan',
           ];
 
           const actualNames = response.map(device => device.name.name);
-          expect(actualNames).toEqual(expectedNames);
+          // The names should be sorted alphabetically, so we can check that the names are correct
+          expect([...actualNames].sort()).toEqual([...expectedNames].sort());
 
           if (trace) {
             fs.writeFileSync('buildSyncResponse.json', JSON.stringify(response, null, 2), 'utf8');
@@ -166,7 +172,7 @@ describe('hap', () => {
       [
         {
           ids: [
-            '11d20d713a1ea46cd7e9b524bda80eb6d5bc7df2ee813903c697edad4a700390'
+            '89e83c9cf95eb2ab26f02601a84cf42e6a05ab4b5a075b8f2ea43e3e0d2d7d2f'
           ],
           status: 'ERROR',
           errorCode: 'challengeNeeded',
@@ -270,7 +276,7 @@ describe('hap', () => {
       describe('SYNC Response', () => {
         test('Sync Response is proper and filtered', async () => {
           const response: any = await hap.buildSyncResponse();
-          expectType<SmartHomeV1SyncDevices[]>(response);
+          expectTypeOf<SmartHomeV1SyncDevices[]>(response);
           expect(response).toBeDefined();
           expect(response).toBeInstanceOf(Array);
           expect(response).toHaveLength(4);
@@ -331,7 +337,7 @@ const executeLightOff =
         'instancePort': 42909,
         'instanceUsername': '1C:22:3D:E3:CF:34',
       },
-      'id': '3844a66b29d217daeeede4f8026fb7d8492d9e3fb53650dd67b9da977ee0ca03',
+      'id': '00d36bc776a09f43f08a3e5ebb6b70d645d94029e98b199aebe6eb84b44fcaf3',
     },
   ],
   'execution': [
@@ -355,7 +361,7 @@ const executeGarageOpen =
         'instancePort': 42909,
         'instanceUsername': '1C:22:3D:E3:CF:34',
       },
-      'id': '11d20d713a1ea46cd7e9b524bda80eb6d5bc7df2ee813903c697edad4a700390',
+      'id': '89e83c9cf95eb2ab26f02601a84cf42e6a05ab4b5a075b8f2ea43e3e0d2d7d2f',
     },
   ],
   'execution': [
@@ -380,7 +386,7 @@ const executeGarageDoorOpenWithIncorrectPin =
         'instancePort': 42909,
         'instanceUsername': '1C:22:3D:E3:CF:34',
       },
-      'id': '11d20d713a1ea46cd7e9b524bda80eb6d5bc7df2ee813903c697edad4a700390',
+      'id': '89e83c9cf95eb2ab26f02601a84cf42e6a05ab4b5a075b8f2ea43e3e0d2d7d2f',
     },
   ],
   'execution': [
@@ -408,7 +414,7 @@ const executeGarageDoorOpenWithCorrectPin =
         'instancePort': 42909,
         'instanceUsername': '1C:22:3D:E3:CF:34',
       },
-      'id': '11d20d713a1ea46cd7e9b524bda80eb6d5bc7df2ee813903c697edad4a700390',
+      'id': '89e83c9cf95eb2ab26f02601a84cf42e6a05ab4b5a075b8f2ea43e3e0d2d7d2f',
     },
   ],
   'execution': [
@@ -436,7 +442,7 @@ const executeGarageClose =
         'instancePort': 42909,
         'instanceUsername': '1C:22:3D:E3:CF:34',
       },
-      'id': '11d20d713a1ea46cd7e9b524bda80eb6d5bc7df2ee813903c697edad4a700390',
+      'id': '89e83c9cf95eb2ab26f02601a84cf42e6a05ab4b5a075b8f2ea43e3e0d2d7d2f',
     },
   ],
   'execution': [

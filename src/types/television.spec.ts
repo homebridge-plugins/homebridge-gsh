@@ -1,9 +1,9 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
-import { Television } from './television';
-
 import { Log } from '../logger';
+import { Television } from './television';
 
 
 class socketMock {
@@ -94,7 +94,7 @@ describe('television', () => {
     it('television with On/Off only - Error', async () => {
       expect.assertions(1);
       televisionServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
-      expect(television.execute(televisionServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
+      await expect(television.execute(televisionServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

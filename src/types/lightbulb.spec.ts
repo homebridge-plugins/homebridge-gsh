@@ -1,7 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Lightbulb } from './lightbulb';
-
-jest.setTimeout(30000);
 
 const lightbulb = new Lightbulb();
 
@@ -86,7 +85,7 @@ describe('lightBulb', () => {
     });
     it('lightbulb with On/Off only - Error', async () => {
       expect.assertions(1);
-      expect(lightbulb.execute(lightbulbServiceOnOffError, commandOnOff)).rejects.toThrow('Error setting value');
+      await expect(lightbulb.execute(lightbulbServiceOnOffError, commandOnOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
     it('lightbulb with On/Off and dimming', async () => {

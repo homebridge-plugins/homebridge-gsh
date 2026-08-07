@@ -1,6 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { WindowCovering } from './window-covering';
-
 const windowCovering = new WindowCovering();
 
 describe('window', () => {
@@ -56,7 +56,7 @@ describe('window', () => {
     it('window Coveringwith On/Off only - Error', async () => {
       expect.assertions(1);
       windowCoveringServiceOnOff.serviceCharacteristics[1].setValue = setValueError;
-      expect(windowCovering.execute(windowCoveringServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
+      await expect(windowCovering.execute(windowCoveringServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });

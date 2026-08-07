@@ -80,12 +80,6 @@
       {
         "args": "none"
       }
-    ],
-    "@typescript-eslint/semi": [
-      "warn"
-    ],
-    "@typescript-eslint/member-delimiter-style": [
-      "warn"
     ]
   }
 }
