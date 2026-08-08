@@ -3,9 +3,10 @@ import { marked } from 'marked';
 import { environment } from '../environments/environment';
 
 @Component({
-  selector: 'app-markdown-viewer',
-  templateUrl: './markdown-viewer.component.html',
-  styleUrls: ['./markdown-viewer.component.scss']
+    selector: 'app-markdown-viewer',
+    templateUrl: './markdown-viewer.component.html',
+    styleUrls: ['./markdown-viewer.component.scss'],
+    standalone: false
 })
 export class MarkdownViewerComponent implements OnChanges {
   @Input() filename!: string;

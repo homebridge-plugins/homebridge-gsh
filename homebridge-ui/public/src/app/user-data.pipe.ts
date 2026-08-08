@@ -2,8 +2,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 @Pipe({
-  name: 'dateToString',
-  pure: true,
+    name: 'dateToString',
+    pure: true,
+    standalone: false
 })
 export class DateToStringPipe implements PipeTransform {
   transform(value: string | Date | undefined | null): string {

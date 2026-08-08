@@ -6,9 +6,10 @@ import { LocalUserData, UserDataService } from './user-data.service';
 import { GITHUB_REPO } from '../../../../src/settings';
 
 @Component({
-  selector: 'app-user-data',
-  templateUrl: './user-data.component.html',
-  styleUrls: ['./user-data.component.scss']
+    selector: 'app-user-data',
+    templateUrl: './user-data.component.html',
+    styleUrls: ['./user-data.component.scss'],
+    standalone: false
 })
 export class UserDataComponent implements OnInit {
   @Input() pluginConfig!: PluginConfig;
