@@ -1,21 +1,38 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NgClass, TitleCasePipe } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
-import { PluginConfig, PluginSchema, ServerEnvMetadata } from '@homebridge/plugin-ui-utils/dist/ui.interface';
+import {
+  PluginConfig,
+  PluginSchema,
+  ServerEnvMetadata,
+} from '@homebridge/plugin-ui-utils/dist/ui.interface';
 import { SERVER_ADDRESS } from '../../../../src/settings';
 
 import { TranslateService } from './translate.service';
+import { TranslatePipe } from './translate.pipe';
+import { MarkdownViewerComponent } from './markdown-viewer.component';
+import { UserDataComponent } from './user-data.component';
 import { UserDataService } from './user-data.service';
 
 const jwtHelper = new JwtHelperService();
 
 @Component({
-    selector: 'app-root',
-    templateUrl: './app.component.html',
-    styleUrls: ['./app.component.scss'],
-    standalone: false
+  selector: 'app-root',
+  imports: [
+    NgClass,
+    TitleCasePipe,
+    TranslatePipe,
+    MarkdownViewerComponent,
+    UserDataComponent,
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit, OnDestroy {
+  translateService = inject(TranslateService);
+  private userDataService = inject(UserDataService);
+
   public linkDomain: string = '';
   private linkUrl: string = '';
   private popup: Window;
@@ -32,14 +49,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public ready = false;
   public userData: any;
 
-  constructor(
-    public translateService: TranslateService,
-    private userDataService: UserDataService,
-  ) { }
-
   async ngOnInit(): Promise<void> {
     this.schema = await window.homebridge.getPluginConfigSchema();
     const configBlocks = await window.homebridge.getPluginConfig();
+
 
     if (!configBlocks.length) {
       this.pluginConfig = {
@@ -59,9 +72,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.parseToken();
     this.ready = true;
 
-    window.homebridge.addEventListener('configChanged', (event: MessageEvent) => {
-      this.pluginConfig = event.data[0];
-    });
+    window.homebridge.addEventListener(
+      'configChanged',
+      (event: MessageEvent) => {
+        this.pluginConfig = event.data[0];
+      },
+    );
+
+
   }
 
   async updateConfig() {
@@ -71,23 +89,29 @@ export class AppComponent implements OnInit, OnDestroy {
   linkAccount() {
     window.addEventListener('message', this.windowMessageListener, false);
 
+
     const w = 450;
     const h = 700;
-    const y = window.top.outerHeight / 2 + window.top.screenY - (h / 2);
-    const x = window.top.outerWidth / 2 + window.top.screenX - (w / 2);
+    const y = window.top.outerHeight / 2 + window.top.screenY - h / 2;
+    const x = window.top.outerWidth / 2 + window.top.screenX - w / 2;
+
     this.popup = window.open(
       this.linkUrl,
       'oznu-google-smart-home-auth',
-      `toolbar=no, location=no, directories=no, status=no, menubar=no scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`
+      `toolbar=no, location=no, directories=no, status=no, menubar=no scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
     );
 
     this.originCheckInterval = setInterval(() => {
       this.popup.postMessage('origin-check', this.linkDomain);
     }, 2000);
+
+
   }
 
   async processToken(token: string) {
     clearInterval(this.originCheckInterval);
+
+
     if (this.popup) {
       this.popup.close();
     }
@@ -97,9 +121,12 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.parseToken();
     this.justLinked = true;
+
     await this.updateConfig();
     await window.homebridge.savePluginConfig();
     window.homebridge.showSchemaForm();
+
+
   }
 
   parseToken() {
@@ -111,7 +138,7 @@ export class AppComponent implements OnInit, OnDestroy {
       } catch (e) {
         window.homebridge.toast.error(
           'Invalid account linking token in config.json',
-          this.translateService.translations['toast.title_error']
+          this.translateService.translations['toast.title_error'],
         );
         delete this.pluginConfig.token;
       }
@@ -121,8 +148,10 @@ export class AppComponent implements OnInit, OnDestroy {
   windowMessageListener = (e: MessageEvent) => {
     if (e.origin !== this.linkDomain) return;
 
+
     try {
       const data = JSON.parse(e.data);
+
       if (data.token) {
         this.processToken(data.token);
       } else {
@@ -131,6 +160,8 @@ export class AppComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
     }
+
+
   };
 
   onUserDataChange(userData: any) {
@@ -140,9 +171,13 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     clearInterval(this.originCheckInterval);
     window.removeEventListener('message', this.windowMessageListener);
+
+
     if (this.popup) {
       this.popup.close();
     }
+
+
   }
 
   copyToClipboard(input: string): void {
@@ -153,7 +188,7 @@ export class AppComponent implements OnInit, OnDestroy {
       (err) => {
         console.error('❌ Failed to copy:', err);
         window.homebridge.toast.error('Error', 'Failed to copy');
-      }
+      },
     );
   }
 }

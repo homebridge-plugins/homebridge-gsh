@@ -8,7 +8,8 @@
     "build": "ng build --configuration production",
     "testbuild": "ng build",
     "test": "ng test",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "lint:fix": "ng lint --fix --max-warnings=0 ."
   },
   "dependencies": {
     "@angular/animations": "^21.2.19",
@@ -33,10 +34,14 @@
     "@angular-devkit/build-angular": "^21.2.20",
     "@angular-devkit/core": "^21.2.20",
     "@angular-devkit/schematics": "^21.2.20",
+    "@angular-eslint/builder": "^21.4.0",
+    "@angular-eslint/eslint-plugin": "^21.4.0",
+    "@angular-eslint/eslint-plugin-template": "^21.4.0",
+    "@angular-eslint/schematics": "^21.4.0",
+    "@angular-eslint/template-parser": "^21.4.0",
     "@angular/cli": "^21.2.20",
     "@angular/compiler-cli": "^21.2.19",
     "@types/jasmine": "~5.1.4",
-    "@types/jasminewd2": "~2.0.3",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.7.9",
     "flush-promises": "^1.0.2",
@@ -44,15 +49,16 @@
     "jasmine-spec-reporter": "~7.0.0",
     "karma": "^6.4.4",
     "karma-chrome-launcher": "~3.2.0",
-    "karma-coverage-istanbul-reporter": "~3.0.2",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "^2.1.0",
-    "ts-node": "~10.9.2",
     "typescript": "~5.9.3"
   },
   "allowScripts": {
     "esbuild": true,
     "fsevents@2.3.3": true,
-    "nice-napi": true
+    "nice-napi": true,
+    "@parcel/watcher@2.6.0": true,
+    "lmdb@3.5.1": true,
+    "msgpackr-extract@3.0.4": true
   }
 }
