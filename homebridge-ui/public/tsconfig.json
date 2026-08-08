@@ -3,7 +3,6 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["es2018", "dom"],
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "baseUrl": "./",
