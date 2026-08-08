@@ -5,8 +5,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --port 4500 --no-live-reload",
-    "build": "ng build --configuration production --output-path ../../dist/homebridge-ui/public",
-    "testbuild": "ng build --output-path ../../dist/homebridge-ui/public",
+    "build": "ng build --configuration production",
+    "testbuild": "ng build",
     "test": "ng test",
     "lint": "ng lint"
   },
