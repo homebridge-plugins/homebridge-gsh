@@ -8,8 +8,7 @@
     "build": "ng build --configuration production",
     "testbuild": "ng build",
     "test": "ng test",
-    "lint": "ng lint",
-    "lint:fix": "ng lint --fix --max-warnings=0 ."
+    "lint": "ng lint"
   },
   "dependencies": {
     "@angular/animations": "^21.2.19",
