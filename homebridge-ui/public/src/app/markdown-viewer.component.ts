@@ -1,9 +1,10 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { marked } from 'marked';
 import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-markdown-viewer',
+  changeDetection: ChangeDetectionStrategy.Default,
   templateUrl: './markdown-viewer.component.html',
   styleUrls: ['./markdown-viewer.component.scss'],
 })

@@ -3,9 +3,9 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "ES2022",
+    "strict": false,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "baseUrl": "./",
     "module": "es2020",
     "moduleResolution": "bundler",
     "declaration": false,

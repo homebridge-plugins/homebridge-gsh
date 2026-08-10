@@ -1,4 +1,5 @@
 import {
+  ChangeDetectionStrategy,
   Component,
   EventEmitter,
   Input,
@@ -16,6 +17,7 @@ import { DateToStringPipe } from './user-data.pipe';
 
 @Component({
   selector: 'app-user-data',
+  changeDetection: ChangeDetectionStrategy.Default,
   templateUrl: './user-data.component.html',
   styleUrls: ['./user-data.component.scss'],
   imports: [NgClass, DateToStringPipe],

@@ -1,5 +1,5 @@
 import { NgClass, TitleCasePipe } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 import {
@@ -19,6 +19,7 @@ const jwtHelper = new JwtHelperService();
 
 @Component({
   selector: 'app-root',
+  changeDetection: ChangeDetectionStrategy.Default,
   imports: [
     NgClass,
     TitleCasePipe,
