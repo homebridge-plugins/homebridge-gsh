@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 
 import { ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
 import { Characteristic } from '../hap-types.js';
 import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 

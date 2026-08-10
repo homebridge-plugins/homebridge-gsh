@@ -8,28 +8,26 @@ import { AppComponent } from './app.component';
 describe('appComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        AppComponent,
-      ],
-    }).compileComponents()
-  })
+      imports: [AppComponent],
+    }).compileComponents();
+  });
 
   it('should create the app', () => {
-    const fixture = TestBed.createComponent(AppComponent)
-    const app = fixture.componentInstance
-    expect(app).toBeTruthy()
-  })
+    const fixture = TestBed.createComponent(AppComponent);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
 
   it('should request the plugin config', async () => {
     // setup mocks
-    window.homebridge = new MockHomebridgePluginUi()
-    vi.spyOn(window.homebridge, 'getPluginConfig')
+    window.homebridge = new MockHomebridgePluginUi();
+    vi.spyOn(window.homebridge, 'getPluginConfig');
 
-    const fixture = TestBed.createComponent(AppComponent)
-    fixture.detectChanges()
+    const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
 
-    await flushPromises()
+    await flushPromises();
 
-    expect(window.homebridge.getPluginConfig).toHaveBeenCalled()
-  })
-})
+    expect(window.homebridge.getPluginConfig).toHaveBeenCalled();
+  });
+});

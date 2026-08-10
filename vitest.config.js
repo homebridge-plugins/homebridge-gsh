@@ -8,7 +8,7 @@ export default defineConfig({
     },
     fileParallelism: false,
     include: ['**/*.spec.ts', '**/*.test.ts'],
-    exclude: ['homebridge-ui/public/**/*.spec.ts', 'homebridge-ui/public/**/*.test.ts', '**/node_modules/**', '**/dist/**', '**/build/**'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', 'homebridge-ui/**', 'test/**'],
   },
   plugins: [
     // This is required to build the test files with SWC

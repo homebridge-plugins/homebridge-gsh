@@ -1,7 +1,7 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
-import { Sensor } from './sensors';
 
 import { Log } from '../logger';
 
@@ -17,7 +17,7 @@ const socketMock = new class {
   }
 
   sendJson(data: any) {
-    // eslint-disable-next-line no-console
+     
     console.log('sendJson', data);
   }
 };
@@ -32,14 +32,8 @@ const config: PluginConfig = {
   combineSensors: true,
 };
 
-const pluginMock = new class {
-  log: Log;
-  constructor() {
-    this.log = new Log(console, true);
-  }
-};
-
-const hap = new Hap(socketMock, pluginMock, '031-45-154', config, {});
+const log = new Log(console, true);
+const hap = new Hap(socketMock, log, '031-45-154', config, {});
 
 describe('combine sensors', () => {
   describe('sync message', () => {
@@ -56,14 +50,14 @@ describe('combine sensors', () => {
         contactSensorTemp2,
       ];
       let response: any;
-      
-      response = hap.types[batteryTemp.type].sync(batteryTemp);
+
+      response = hap.types[batteryTemp.type as keyof typeof hap.types].sync(batteryTemp);
       expect(response).not.toBeDefined();
-      
-      response = hap.types[humiditySensorTemp.type].sync(humiditySensorTemp);
+
+      response = hap.types[humiditySensorTemp.type as keyof typeof hap.types].sync(humiditySensorTemp);
       expect(response).not.toBeDefined();
-      
-      response = hap.types[temperatureSensorTemp.type].sync(temperatureSensorTemp);
+
+      response = hap.types[temperatureSensorTemp.type as keyof typeof hap.types].sync(temperatureSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(temperatureSensorTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SENSOR');
@@ -82,8 +76,8 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors combine', async () => {
       let response: any;
-      
-      response = hap.types[batteryTemp.type].query(batteryTemp);
+
+      response = hap.types[batteryTemp.type as keyof typeof hap.types].query(batteryTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(temperatureSensorTemp.uniqueId);
       expect(response.temperatureSetpointCelsius).toBeDefined();
@@ -92,8 +86,8 @@ describe('combine sensors', () => {
       expect(response.descriptiveCapacityRemaining).toBeDefined();
       expect(response.capacityRemaining).toBeDefined();
       expect(response.online).toBeDefined();
-      
-      response = hap.types[temperatureSensorTemp.type].query(temperatureSensorTemp);
+
+      response = hap.types[temperatureSensorTemp.type as keyof typeof hap.types].query(temperatureSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.temperatureSetpointCelsius).toBeDefined();
@@ -106,25 +100,25 @@ describe('combine sensors', () => {
   });
   describe('execute message', () => {
     it('sensors ', async () => {
-      const response = await hap.types[batteryTemp.type].execute(batteryTemp, commandOnOff);
+      const response = await hap.types[batteryTemp.type as keyof typeof hap.types].execute(batteryTemp, commandOnOff);
       expect(response).toBeDefined();
-      expect(response.ids).toBeDefined();
-      expect(response.status).toBe('ERROR');
+      expect(response!.ids).toBeDefined();
+      expect(response!.status).toBe('ERROR');
     });
   });
 
   describe('sync message', () => {
     it('sensors with switch', async () => {
       let response: any;
-      
-      response = hap.types[switchTemp.type].sync(switchTemp);
+
+      response = hap.types[switchTemp.type as keyof typeof hap.types].sync(switchTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SWITCH');
       expect(response.traits).toContain('action.devices.traits.OnOff');
       expect(response.traits).not.toContain('action.devices.traits.OccupancySensing');
 
-      response = hap.types[motionSensorTemp.type].sync(motionSensorTemp);
+      response = hap.types[motionSensorTemp.type as keyof typeof hap.types].sync(motionSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SWITCH');
@@ -134,7 +128,7 @@ describe('combine sensors', () => {
       expect(response.attributes.occupancySensorConfiguration).toBeDefined();
       expect(response.attributes.occupancySensorConfiguration[0].occupancySensorType).toBe('PHYSICAL_CONTACT');
 
-      response = hap.types[switchTemp.type].sync(switchTemp);
+      response = hap.types[switchTemp.type as keyof typeof hap.types].sync(switchTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SWITCH');
@@ -148,8 +142,8 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors with switch', async () => {
       let response: any;
-      
-      response = hap.types[motionSensorTemp.type].query(motionSensorTemp);
+
+      response = hap.types[motionSensorTemp.type as keyof typeof hap.types].query(motionSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
       expect(response.on).toBeDefined();
@@ -157,7 +151,7 @@ describe('combine sensors', () => {
       expect(response.occupancy).toMatch(/^(OCCUPIED|UNOCCUPIED)$/);
       expect(response.online).toBeDefined();
 
-      response = hap.types[switchTemp.type].query(switchTemp);
+      response = hap.types[switchTemp.type as keyof typeof hap.types].query(switchTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.on).toBeDefined();
@@ -170,14 +164,14 @@ describe('combine sensors', () => {
   describe('sync message', () => {
     it('sensors conflicting traits', async () => {
       let response: any;
-      
-      response = hap.types[contactSensorTemp.type].sync(contactSensorTemp);
+
+      response = hap.types[contactSensorTemp.type as keyof typeof hap.types].sync(contactSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(contactSensorTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SENSOR');
       expect(response.traits).toContain('action.devices.traits.OpenClose');
 
-      response = hap.types[windowCoveringTemp.type].sync(windowCoveringTemp);
+      response = hap.types[windowCoveringTemp.type as keyof typeof hap.types].sync(windowCoveringTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(windowCoveringTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.WINDOW');
@@ -187,15 +181,15 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors conflicting traits', async () => {
       let response: any;
-      
-      response = hap.types[contactSensorTemp.type].query(contactSensorTemp);
+
+      response = hap.types[contactSensorTemp.type as keyof typeof hap.types].query(contactSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.openPercent).toBeDefined();
       expect(response.on).not.toBeDefined();
       expect(response.online).toBeDefined();
 
-      response = hap.types[windowCoveringTemp.type].query(windowCoveringTemp);
+      response = hap.types[windowCoveringTemp.type as keyof typeof hap.types].query(windowCoveringTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.openPercent).toBeDefined();
@@ -208,13 +202,13 @@ describe('combine sensors', () => {
     it('sensors multiple instances', async () => {
       let response: any;
 
-      response = hap.types[contactSensorTemp1.type].sync(contactSensorTemp1);
+      response = hap.types[contactSensorTemp1.type as keyof typeof hap.types].sync(contactSensorTemp1);
       expect(response).toBeDefined();
       expect(response.id).toBe(contactSensorTemp1.uniqueId);
       expect(response.type).toBe('action.devices.types.SENSOR');
       expect(response.traits).toContain('action.devices.traits.OpenClose');
 
-      response = hap.types[contactSensorTemp2.type].sync(contactSensorTemp2);
+      response = hap.types[contactSensorTemp2.type as keyof typeof hap.types].sync(contactSensorTemp2);
       expect(response).toBeDefined();
       expect(response.id).toBe(contactSensorTemp2.uniqueId);
       expect(response.type).toBe('action.devices.types.SENSOR');
@@ -225,14 +219,14 @@ describe('combine sensors', () => {
     it('sensors multiple instances', async () => {
       let response: any;
 
-      response = hap.types[contactSensorTemp1.type].query(contactSensorTemp1);
+      response = hap.types[contactSensorTemp1.type as keyof typeof hap.types].query(contactSensorTemp1);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.openPercent).toBeDefined();
       expect(response.on).not.toBeDefined();
       expect(response.online).toBeDefined();
 
-      response = hap.types[contactSensorTemp2.type].query(contactSensorTemp2);
+      response = hap.types[contactSensorTemp2.type as keyof typeof hap.types].query(contactSensorTemp2);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
       expect(response.openPercent).toBeDefined();

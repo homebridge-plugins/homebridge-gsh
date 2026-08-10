@@ -1,15 +1,11 @@
-import { Pipe, PipeTransform } from '@angular/core'
-import { TranslateService } from './translate.service'
+import { Pipe, PipeTransform, inject } from '@angular/core';
+import { TranslateService } from './translate.service';
 
-@Pipe({
-  name: 'translate',
-})
+@Pipe({ name: 'translate' })
 export class TranslatePipe implements PipeTransform {
-  constructor(
-    private translateService: TranslateService,
-  ) { }
+  private translateService = inject(TranslateService);
 
   transform(value: string): string {
-    return this.translateService.translations[value]
+    return this.translateService.translations[value];
   }
 }

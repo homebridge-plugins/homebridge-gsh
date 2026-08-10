@@ -1,15 +1,17 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 export interface UserDataResponse {
   user_id: string;
 
-  subscriptionRequired: boolean; // Causes UI to display subscription box, set for accounts created after launch date, and 30 days after launch for accounts created before launch
-  subscriptionActive: boolean; // Used by client to determine if the subscription is active or not 
+  subscriptionRequired: boolean; // Causes UI to display subscription box, set for accounts created after launch date, 
+  // and 30 days after launch for accounts created before launch
+  subscriptionActive: boolean; // Used by client to determine if the subscription is active or not
   serviceActive: boolean; // Used by client to determine if the service is active or not
   expiryDate: Date; // Date of the next payment or trial period end - service s/b active until this date
-  subscriptionType: number; // 0 - Contributor, 1 - Trial ( trialExpiryDate), 2 - Vendor Managed Subscription ( no expiry ), 3 - Manual Subscription ( subscriptionExpiryDate )
+  subscriptionType: number; // 0 - Contributor, 1 - Trial ( trialExpiryDate), 2 - Vendor Managed Subscription ( no expiry ), 
+  // 3 - Manual Subscription ( subscriptionExpiryDate )
 
   accountStatus: { text: string; color: string };
 
@@ -22,7 +24,7 @@ export interface UserDataResponse {
 
   paypalPlans: PayPalPlanResponse[];
   paypalScript: string;
-};
+}
 
 export interface PayPalPlanResponse {
   id: string;
@@ -35,11 +37,10 @@ export interface LocalUserData extends UserDataResponse {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserDataService {
-
-  constructor(private http: HttpClient) { }
+  private http = inject(HttpClient);
 
   private userData: LocalUserData;
 
@@ -51,47 +52,56 @@ export class UserDataService {
   }
 
   getUserData(domain: string, token: string): Observable<LocalUserData> {
-
     if (token) {
       const headers = this.createHeaders(token);
       const url = `${domain}/userData/userData`;
 
-      return this.http.get<{ userData: UserDataResponse }>(url, { headers }).pipe(
-        map(response => {
-          this.userData = response.userData;
-          this.userData.startDate = startDate(this.userData.expiryDate);
-          return this.userData;
-        })
-      );
+      return this.http
+        .get<{ userData: UserDataResponse }>(url, { headers })
+        .pipe(
+          map((response) => {
+            this.userData = response.userData;
+            this.userData.startDate = startDate(this.userData.expiryDate);
+            return this.userData;
+          }),
+        );
     } else {
-      return new Observable<LocalUserData>(observer => {
+      return new Observable<LocalUserData>((observer) => {
         observer.next(this.userData);
         observer.complete();
       });
     }
   }
 
-  cancelSubscription(subscriptionID: string, linkDomain: string, token: string): Promise<any> {
+  cancelSubscription(
+    subscriptionID: string,
+    linkDomain: string,
+    token: string,
+  ): Promise<any> {
     const headers = this.createHeaders(token);
     return fetch(`${linkDomain}/userData/cancel`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ subscriptionID }),
-    }).then(res => res.json());
+    }).then((res) => res.json());
   }
 
-  saveSubscription(details: any, linkDomain: string, token: string): Promise<any> {
+  saveSubscription(
+    details: any,
+    linkDomain: string,
+    token: string,
+  ): Promise<any> {
     return fetch(`${linkDomain}/userData/subscribe`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(details),
-    }).then(res => res.json());
+    }).then((res) => res.json());
   }
 
   private scriptLoaded = false;
@@ -123,9 +133,10 @@ export class UserDataService {
 function startDate(expiryDate: Date | string | undefined): Date {
   const expiry = new Date(expiryDate);
   const now = new Date();
-  const startDate = !isNaN(expiry.getTime()) && expiry > now
-    ? expiry
-    : new Date(now.getTime() + 10 * 60 * 1000); // Add 10 minutes to current time
+  const startDate =
+    !isNaN(expiry.getTime()) && expiry > now
+      ? expiry
+      : new Date(now.getTime() + 10 * 60 * 1000); // Add 10 minutes to current time
 
   return startDate;
 }

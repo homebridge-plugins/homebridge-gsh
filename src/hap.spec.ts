@@ -1,5 +1,5 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
+import type { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
 import fs from 'fs';
 
 import { afterAll, describe, expect, expectTypeOf, test } from 'vitest';
@@ -22,7 +22,7 @@ class socketMock {
   }
 
   sendJson(data: any) {
-    // eslint-disable-next-line no-console
+     
     console.log('sendJson', data);
   }
 }
@@ -55,7 +55,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
 
@@ -88,7 +88,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -112,7 +112,7 @@ describe('hap', () => {
             'West Bedroom Fan',
           ];
 
-          const actualNames = response.map(device => device.name.name);
+          const actualNames = response.map((device: any) => device.name.name);
           // The names should be sorted alphabetically, so we can check that the names are correct
           expect([...actualNames].sort()).toEqual([...expectedNames].sort());
 
@@ -145,7 +145,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -227,7 +227,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-      // eslint-disable-next-line no-console
+       
       console.log('destroy');
       await hap.destroy();
     });
@@ -258,7 +258,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
     });
@@ -269,7 +269,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -288,7 +288,7 @@ describe('hap', () => {
             'West Bedroom Fan',
           ];
 
-          const actualNames = response.map(device => device.name.name);
+          const actualNames = response.map((device: any) => device.name.name);
           expect(actualNames).toEqual(expectedNames);
 
           if (trace) {
@@ -315,7 +315,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-      // eslint-disable-next-line no-console
+       
       console.log('destroy');
       await hap.destroy();
     });

@@ -1,9 +1,13 @@
 <!-- Spinner while loading -->
-<div *ngIf="loading" class="d-flex justify-content-center my-4">
-  <div class="spinner-border" role="status">
-    <span class="visually-hidden">Loading...</span>
+@if (loading) {
+  <div class="d-flex justify-content-center my-4">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
   </div>
-</div>
+}
 
 <!-- Rendered markdown -->
-<div *ngIf="!loading" class="markdown-body" [innerHTML]="html"></div>
+@if (!loading) {
+  <div class="markdown-body" [innerHTML]="html"></div>
+}

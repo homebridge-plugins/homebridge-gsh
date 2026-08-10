@@ -8,10 +8,14 @@ import { Pipe, PipeTransform } from '@angular/core';
 export class DateToStringPipe implements PipeTransform {
   transform(value: string | Date | undefined | null): string {
     console.log('DateToStringPipe', value);
-    if (!value) return 'N/A';
+    if (!value) {
+      return 'N/A';
+    }
 
     const date = value instanceof Date ? value : new Date(value);
-    if (isNaN(date.getTime())) return 'Invalid Date';
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
 
     return date.toLocaleDateString('en-GB', {
       year: 'numeric',
