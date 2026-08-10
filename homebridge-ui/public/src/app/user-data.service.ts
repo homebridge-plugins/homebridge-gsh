@@ -5,11 +5,13 @@ import { Observable, map } from 'rxjs';
 export interface UserDataResponse {
   user_id: string;
 
-  subscriptionRequired: boolean; // Causes UI to display subscription box, set for accounts created after launch date, and 30 days after launch for accounts created before launch
+  subscriptionRequired: boolean; // Causes UI to display subscription box, set for accounts created after launch date, 
+  // and 30 days after launch for accounts created before launch
   subscriptionActive: boolean; // Used by client to determine if the subscription is active or not
   serviceActive: boolean; // Used by client to determine if the service is active or not
   expiryDate: Date; // Date of the next payment or trial period end - service s/b active until this date
-  subscriptionType: number; // 0 - Contributor, 1 - Trial ( trialExpiryDate), 2 - Vendor Managed Subscription ( no expiry ), 3 - Manual Subscription ( subscriptionExpiryDate )
+  subscriptionType: number; // 0 - Contributor, 1 - Trial ( trialExpiryDate), 2 - Vendor Managed Subscription ( no expiry ), 
+  // 3 - Manual Subscription ( subscriptionExpiryDate )
 
   accountStatus: { text: string; color: string };
 

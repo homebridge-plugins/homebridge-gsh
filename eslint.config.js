@@ -7,7 +7,6 @@ export default [
   {
     ignores: [
       'dist/**',
-      'homebridge-ui/**',
       'chrome-profile/**',
     ],
   },
@@ -67,6 +66,17 @@ export default [
   },
   {
     files: ['**/*.test.ts', '**/*.spec.ts'],
+    rules: {
+      'no-console': 'off',
+    },
+  },
+  {
+    files: ['homebridge-ui/public/src/**/*.ts'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
     rules: {
       'no-console': 'off',
     },

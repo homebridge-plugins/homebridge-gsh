@@ -8,8 +8,7 @@
     "build": "ng build --configuration production",
     "testbuild": "ng build",
     "test": "echo \"INFO: Testing is done from the plugin code.\"",
-    "lint": "eslint . --config ../../eslint.config.js",
-    "lint:fix": "eslint . --config ../../eslint.config.js --fix"
+    "lint": "echo \"INFO: Linting is done from the plugin code.\""
   },
   "dependencies": {
     "@angular/common": "^22.1.1",

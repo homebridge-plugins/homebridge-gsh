@@ -9,9 +9,9 @@ import {
 } from '@homebridge/plugin-ui-utils/dist/ui.interface';
 import { SERVER_ADDRESS } from '../../../../src/settings';
 
-import { TranslateService } from './translate.service';
-import { TranslatePipe } from './translate.pipe';
 import { MarkdownViewerComponent } from './markdown-viewer.component';
+import { TranslatePipe } from './translate.pipe';
+import { TranslateService } from './translate.service';
 import { UserDataComponent } from './user-data.component';
 import { UserDataService } from './user-data.service';
 
@@ -106,7 +106,10 @@ export class AppComponent implements OnInit, OnDestroy {
     this.popup = window.open(
       this.linkUrl,
       'oznu-google-smart-home-auth',
-      `toolbar=no, location=no, directories=no, status=no, menubar=no scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
+      // eslint-disable-next-line quotes
+      `toolbar=no, location=no, directories=no, status=no, menubar=no ` +
+      `scrollbars=no, resizable=no, copyhistory=no, width=${w}, ` +
+      `height=${h}, top=${y}, left=${x}`,
     );
 
     this.originCheckInterval = setInterval(() => {
