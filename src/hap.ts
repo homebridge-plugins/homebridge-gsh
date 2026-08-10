@@ -29,6 +29,7 @@ import { TemperatureSensor } from './types/temperature-sensor.js';
 import { Thermostat } from './types/thermostat.js';
 import { WindowCovering } from './types/window-covering.js';
 import { Window } from './types/window.js';
+import { Sensor } from './types/sensors.js';
 
 export class Hap {
   socket;
@@ -58,9 +59,9 @@ export class Hap {
     HumiditySensor: new HumiditySensor(),
     Lightbulb: new Lightbulb(),
     LockMechanism: new LockMechanism(),
-    Outlet: new Switch('action.devices.types.OUTLET'),
+    Outlet: new Switch(),
     SecuritySystem: new SecuritySystem(),
-    Switch: new Switch('action.devices.types.SWITCH'),
+    Switch: new Switch(),
     Television: new Television(this),
     TemperatureSensor: new TemperatureSensor(this),
     Thermostat: new Thermostat(this),
@@ -73,6 +74,18 @@ export class Hap {
     MotionSensor: new MotionSensor(),
     Battery: new Battery(),
   };
+
+  sensorServices = [
+    'TemperatureSensor',
+    'HumiditySensor',
+    'OccupancySensor',
+    'ContactSensor',
+    'MotionSensor',
+    'Battery',
+  ];
+
+  sensors = new Sensor(this) as any;
+  sensorTypes: Record<string, any> = {};
 
   /* event tracking */
   // evInstances: Instance[] = [];
@@ -131,6 +144,55 @@ export class Hap {
     this.accessoryFilterInverse = config.accessoryFilterInverse || false;
     this.accessorySerialFilter = config.accessorySerialFilter || [];
     this.instanceBlacklist = config.instanceDenylist || [];
+
+    if (config.combineSensors) {
+      Object.keys(this.types).forEach(type => {
+        if (this.types[type] === this.dummy) {
+          return;
+        }
+        this.types[type] = new class extends this.types[type].constructor {
+          private primaryService = {};
+          private secondaryServices = {};
+          private types;
+          
+          constructor(hap) {
+            super(hap);
+            this.types = hap.types;
+          }
+
+          sync(service) {
+            const response = super.sync(service);
+            this.secondaryServices[service.uniqueId]?.forEach(secondary => {
+              const update = this.types[secondary.type].sync(secondary, response);
+              const attribute = {...response.attributes, ...update.attributes};
+              response.traits = [...response.traits, ...update.traits];
+              if (Object.keys(attribute).length > 0) {
+                response.attributes = attribute;
+              }
+            });
+            return response;
+          }
+
+          query(service) {
+            const response = super.query(service);
+            this.secondaryServices[service.uniqueId]?.forEach(secondary => {
+              const update = this.types[secondary.type].query(secondary, response);
+              Object.assign(response, update);
+            });
+            return response;
+          }
+
+          exec(service, command) {
+            return super.exec(service, command);
+          }
+        }(this);
+      });
+    
+      for (const service of this.sensorServices) {
+        this.sensorTypes[service] = this.types[service];
+        this.types[service] = this.sensors;
+      }
+    }
 
     // eslint-disable-next-line max-len
     this.log.debug(`Waiting ${this.configDiscoveryWait} seconds before starting instance discovery, and ${this.configDiscoveryTimeout} seconds after last device is discovered to publish to Google.`);
@@ -222,14 +284,23 @@ export class Hap {
   async buildSyncResponse(): Promise<SmartHomeV1SyncDevices[]> {
     const devices = this.services.filter((service) =>
       this.types?.[service.type]?.sync,
-    ).map((service) => {
-      // if (!this.types[service.type]) {
-      //   // this.log.debug(`Unsupported service type ${service.type}`);
-      //   return;
-      // }
-      // // console.log('buildSyncResponse', service);
-      return this.types[service.type].sync(service);
-    });
+    ).reduce((response, service) => {
+      const update = this.types[service.type].sync(service);
+      if (!update) {
+        return response;
+      }
+      const ix = response.findIndex(x => x.id === update.id);
+      if (ix > -1) {
+        // sensors service might rebuild primary non-sensor service response.
+        // console.log('updated sync response.', service.serviceName, update);
+        response[ix] = update;
+        return response;
+      }
+      return [...response, update];
+    }, []);
+    // console.log(devices);
+    // console.log(devices.length);
+    
     return devices;
   }
 
@@ -258,11 +329,16 @@ export class Hap {
 
     for (const device of devices) {
       const service = this.services.find(x => x.uniqueId === device.id);
+      response[device.id] = {};
       if (service) {
         await this.getStatus(service);
-        response[device.id] = this.types[service.type].query(service);
-      } else {
-        response[device.id] = {};
+        const {id, ...update} = this.types[service.type].query(service);
+        if (id) {
+          const target = this.services.find(x => x.uniqueId === id);
+          this.log.error(`Unexpected query response ${target.serviceName} instead of ${service.serviceName}. ${update}`);
+          continue;
+        }
+        response[device.id] = update;
       }
     }
 
@@ -435,7 +511,12 @@ export class Hap {
       if (!this.types?.[service.type]?.query) {
         continue;
       }
-      states[service.uniqueId] = this.types[service.type].query(service);
+      // sensors service might respond as a non-sensor primary service.
+      const {id = service.uniqueId, ...response} = this.types[service.type].query(service);
+      // response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
+      // response['origin'] = service.serviceName;
+      // console.log(response);
+      states[id] = response;
     }
 
     return await this.sendStateReport(states);
@@ -451,10 +532,11 @@ export class Hap {
     this.services.filter((service) =>
       this.types?.[service.type]?.query,
     ).map((service) => {
-      // if (!this.types[service.type]) {
-      //   return;
-      // }
-      return states[service.uniqueId] = this.types[service.type].query(service);
+      // sensors service might respond as a primary non-sensor service.
+      const {id = service.uniqueId, ...update} = this.types[service.type].query(service);
+      // update['target'] = this.services.find(x => x.uniqueId === id).serviceName;
+      // update['origin'] = service.serviceName;
+      states[id] = update;
     });
     return await this.sendStateReport(states);
   }

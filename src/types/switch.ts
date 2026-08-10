@@ -4,14 +4,10 @@ import { Characteristic } from '../hap-types.js';
 import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class Switch extends ghToHap implements ghToHap_t {
-  private deviceType: string;
-
-  constructor(type) {
-    super();
-    this.deviceType = type;
-  }
-
   sync(service: ServiceType) {
+    const type = service.type === 'Switch' ?
+      'action.devices.types.SWITCH' :
+      'action.devices.types.OUTLET';
     const traits = [
       'action.devices.traits.OnOff',
     ];
@@ -23,7 +19,7 @@ export class Switch extends ghToHap implements ghToHap_t {
     }
 
     return this.createSyncData(service, {
-      type: this.deviceType,
+      type,
       traits,
     });
   }
