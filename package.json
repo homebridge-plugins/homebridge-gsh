@@ -46,12 +46,6 @@
     "test-watch": "npm run test -- --watch",
     "build:gen-hap-types": "tsx scripts/gen-hap-types.ts"
   },
-  "bundledDependencies": [
-    "@homebridge/hap-client",
-    "@homebridge/ws-connect",
-    "fs-extra",
-    "rxjs"
-  ],
   "dependencies": {
     "@homebridge/hap-client": "^5.1.1",
     "@homebridge/ws-connect": "^3.0.0",

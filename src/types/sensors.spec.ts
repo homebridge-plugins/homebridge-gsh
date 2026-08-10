@@ -1,7 +1,7 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
-import { Sensor } from './sensors';
 
 import { Log } from '../logger';
 
@@ -56,13 +56,13 @@ describe('combine sensors', () => {
         contactSensorTemp2,
       ];
       let response: any;
-      
+
       response = hap.types[batteryTemp.type].sync(batteryTemp);
       expect(response).not.toBeDefined();
-      
+
       response = hap.types[humiditySensorTemp.type].sync(humiditySensorTemp);
       expect(response).not.toBeDefined();
-      
+
       response = hap.types[temperatureSensorTemp.type].sync(temperatureSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(temperatureSensorTemp.uniqueId);
@@ -82,7 +82,7 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors combine', async () => {
       let response: any;
-      
+
       response = hap.types[batteryTemp.type].query(batteryTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(temperatureSensorTemp.uniqueId);
@@ -92,7 +92,7 @@ describe('combine sensors', () => {
       expect(response.descriptiveCapacityRemaining).toBeDefined();
       expect(response.capacityRemaining).toBeDefined();
       expect(response.online).toBeDefined();
-      
+
       response = hap.types[temperatureSensorTemp.type].query(temperatureSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
@@ -116,7 +116,7 @@ describe('combine sensors', () => {
   describe('sync message', () => {
     it('sensors with switch', async () => {
       let response: any;
-      
+
       response = hap.types[switchTemp.type].sync(switchTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
@@ -148,7 +148,7 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors with switch', async () => {
       let response: any;
-      
+
       response = hap.types[motionSensorTemp.type].query(motionSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(switchTemp.uniqueId);
@@ -170,7 +170,7 @@ describe('combine sensors', () => {
   describe('sync message', () => {
     it('sensors conflicting traits', async () => {
       let response: any;
-      
+
       response = hap.types[contactSensorTemp.type].sync(contactSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).toBe(contactSensorTemp.uniqueId);
@@ -187,7 +187,7 @@ describe('combine sensors', () => {
   describe('query message', () => {
     it('sensors conflicting traits', async () => {
       let response: any;
-      
+
       response = hap.types[contactSensorTemp.type].query(contactSensorTemp);
       expect(response).toBeDefined();
       expect(response.id).not.toBeDefined();
