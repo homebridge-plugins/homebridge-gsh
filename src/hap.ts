@@ -24,6 +24,7 @@ import { LockMechanism } from './types/lock-mechanism.js';
 import { MotionSensor } from './types/motion-sensor.js';
 import { OccupancySensor } from './types/occupancy-sensor.js';
 import { SecuritySystem } from './types/security-system.js';
+import { Sensor } from './types/sensors.js';
 import { SmokeSensor } from './types/smoke-sensor.js';
 import { Switch } from './types/switch.js';
 import { Television } from './types/television.js';
@@ -31,7 +32,6 @@ import { TemperatureSensor } from './types/temperature-sensor.js';
 import { Thermostat } from './types/thermostat.js';
 import { WindowCovering } from './types/window-covering.js';
 import { Window } from './types/window.js';
-import { Sensor } from './types/sensors.js';
 
 export class Hap {
   socket;
@@ -49,7 +49,11 @@ export class Hap {
 
   public ready: boolean;
 
-  private dummy = () => { };
+  private dummy = {
+    sync: () => undefined,
+    query: () => undefined,
+    execute: () => undefined,
+  };
 
   /* GSH Supported types */
   types = {
@@ -160,7 +164,7 @@ export class Hap {
           private primaryService = {};
           private secondaryServices = {};
           private types;
-          
+
           constructor(hap) {
             super(hap);
             this.types = hap.types;
@@ -170,7 +174,7 @@ export class Hap {
             const response = super.sync(service);
             this.secondaryServices[service.uniqueId]?.forEach(secondary => {
               const update = this.types[secondary.type].sync(secondary, response);
-              const attribute = {...response.attributes, ...update.attributes};
+              const attribute = { ...response.attributes, ...update.attributes };
               response.traits = [...response.traits, ...update.traits];
               if (Object.keys(attribute).length > 0) {
                 response.attributes = attribute;
@@ -193,7 +197,7 @@ export class Hap {
           }
         }(this);
       });
-    
+
       for (const service of this.sensorServices) {
         this.sensorTypes[service] = this.types[service];
         this.types[service] = this.sensors;
@@ -306,7 +310,7 @@ export class Hap {
     }, []);
     // console.log(devices);
     // console.log(devices.length);
-    
+
     return devices;
   }
 
@@ -338,7 +342,7 @@ export class Hap {
       response[device.id] = {};
       if (service) {
         await this.getStatus(service);
-        const {id, ...update} = this.types[service.type].query(service);
+        const { id, ...update } = this.types[service.type].query(service);
         if (id) {
           const target = this.services.find(x => x.uniqueId === id);
           this.log.error(`Unexpected query response ${target.serviceName} instead of ${service.serviceName}. ${update}`);
@@ -518,7 +522,7 @@ export class Hap {
         continue;
       }
       // sensors service might respond as a non-sensor primary service.
-      const {id = service.uniqueId, ...response} = this.types[service.type].query(service);
+      const { id = service.uniqueId, ...response } = this.types[service.type].query(service);
       // response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
       // response['origin'] = service.serviceName;
       // console.log(response);
@@ -539,7 +543,7 @@ export class Hap {
       this.types?.[service.type]?.query,
     ).map((service) => {
       // sensors service might respond as a primary non-sensor service.
-      const {id = service.uniqueId, ...update} = this.types[service.type].query(service);
+      const { id = service.uniqueId, ...update } = this.types[service.type].query(service);
       // update['target'] = this.services.find(x => x.uniqueId === id).serviceName;
       // update['origin'] = service.serviceName;
       states[id] = update;

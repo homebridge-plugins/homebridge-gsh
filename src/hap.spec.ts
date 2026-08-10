@@ -112,7 +112,7 @@ describe('hap', () => {
             'West Bedroom Fan',
           ];
 
-          const actualNames = response.map(device => device.name.name);
+          const actualNames = response.map((device: any) => device.name.name);
           // The names should be sorted alphabetically, so we can check that the names are correct
           expect([...actualNames].sort()).toEqual([...expectedNames].sort());
 
@@ -288,7 +288,7 @@ describe('hap', () => {
             'West Bedroom Fan',
           ];
 
-          const actualNames = response.map(device => device.name.name);
+          const actualNames = response.map((device: any) => device.name.name);
           expect(actualNames).toEqual(expectedNames);
 
           if (trace) {
