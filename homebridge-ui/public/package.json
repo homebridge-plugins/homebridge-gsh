@@ -8,7 +8,8 @@
     "build": "ng build --configuration production",
     "testbuild": "ng build",
     "test": "echo \"INFO: Testing is done from the plugin code.\"",
-    "lint": "eslint . --config ../../eslint.config.js"
+    "lint": "eslint . --config ../../eslint.config.js",
+    "lint:fix": "eslint . --config ../../eslint.config.js --fix"
   },
   "dependencies": {
     "@angular/common": "^22.1.1",
@@ -33,7 +34,6 @@
     "@angular-devkit/schematics": "^22.1.3",
     "@angular/cli": "^22.1.3",
     "@angular/compiler-cli": "^22.1.1",
-    "@types/jest": "^29.5.14",
     "@types/node": "^22.7.9",
     "typescript": "~6.0.3"
   },
