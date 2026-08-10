@@ -38,8 +38,9 @@ export class MarkdownViewerComponent implements OnChanges {
     console.log('Loading markdown from:', url);
     try {
       const res = await fetch(url);
-      if (!res.ok)
+      if (!res.ok) {
         throw new Error(`Failed to fetch ${filename}: ${res.status}`);
+      }
       const markdown = await res.text();
       this.html = await marked.parse(markdown);
     } catch (err: any) {

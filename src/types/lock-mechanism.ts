@@ -77,6 +77,5 @@ export class LockMechanism extends ghToHap implements ghToHap_t {
       default: { return false; }
     }
 
-    return false;
   }
 }

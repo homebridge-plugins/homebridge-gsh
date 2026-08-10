@@ -22,7 +22,7 @@ class socketMock {
   }
 
   sendJson(data: any) {
-    // eslint-disable-next-line no-console
+     
     console.log('sendJson', data);
   }
 }
@@ -55,7 +55,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
 
@@ -88,7 +88,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -145,7 +145,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -227,7 +227,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-      // eslint-disable-next-line no-console
+       
       console.log('destroy');
       await hap.destroy();
     });
@@ -258,7 +258,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
     });
@@ -269,7 +269,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-        // eslint-disable-next-line no-console
+         
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -315,7 +315,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-      // eslint-disable-next-line no-console
+       
       console.log('destroy');
       await hap.destroy();
     });

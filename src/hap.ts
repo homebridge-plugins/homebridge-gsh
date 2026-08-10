@@ -40,8 +40,11 @@ export class Hap {
   config: PluginConfig;
   hapClient: HapClient;
   services: ServiceType[] = [];
+  // eslint-disable-next-line no-undef
   private startTimeout: NodeJS.Timeout;
+  // eslint-disable-next-line no-undef
   private discoveryTimeout: NodeJS.Timeout;
+  // eslint-disable-next-line no-undef
   private syncTimeout: NodeJS.Timeout;
   private api: API;
   private configDiscoveryTimeout: number;

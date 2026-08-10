@@ -155,7 +155,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   windowMessageListener = (e: MessageEvent) => {
-    if (e.origin !== this.linkDomain) return;
+    if (e.origin !== this.linkDomain) {
+      return;
+    }
 
 
     try {

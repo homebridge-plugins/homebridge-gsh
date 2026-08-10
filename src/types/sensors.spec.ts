@@ -17,7 +17,7 @@ const socketMock = new class {
   }
 
   sendJson(data: any) {
-    // eslint-disable-next-line no-console
+     
     console.log('sendJson', data);
   }
 };
