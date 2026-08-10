@@ -1,5 +1,5 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
+import type { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
 import fs from 'fs';
 
 import { afterAll, describe, expect, expectTypeOf, test } from 'vitest';

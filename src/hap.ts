@@ -1,5 +1,5 @@
 import { Config, HapClient, ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
 import * as fs from 'fs';
 import { Subject } from 'rxjs';
 import { debounceTime, map } from 'rxjs/operators';
