@@ -1,4 +1,5 @@
 import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { CarbonMonoxideSensor } from './carbon-monoxide-sensor';
 
 const carbonMonoxideSensor = new CarbonMonoxideSensor();

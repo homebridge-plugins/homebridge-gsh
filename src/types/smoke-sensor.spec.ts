@@ -1,4 +1,5 @@
 import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { SmokeSensor } from './smoke-sensor';
 
 const smokeSensor = new SmokeSensor();
