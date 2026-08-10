@@ -32,14 +32,8 @@ const config: PluginConfig = {
   combineSensors: true,
 };
 
-const pluginMock = new class {
-  log: Log;
-  constructor() {
-    this.log = new Log(console, true);
-  }
-};
-
-const hap = new Hap(socketMock, pluginMock, '031-45-154', config, {});
+const log = new Log(console, true);
+const hap = new Hap(socketMock, log, '031-45-154', config, {});
 
 describe('combine sensors', () => {
   describe('sync message', () => {
