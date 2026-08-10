@@ -8,12 +8,12 @@ import {
   Output,
   inject,
 } from '@angular/core';
-import { PluginConfig } from '@homebridge/plugin-ui-utils/dist/ui.interface';
+import { PluginConfig } from '@homebridge/plugin-ui-utils/ui.interface';
 import { TranslateService } from './translate.service';
 import { LocalUserData, UserDataService } from './user-data.service';
 
-import { GITHUB_REPO } from '../../../../src/settings';
 import { NgClass } from '@angular/common';
+import { GITHUB_REPO } from '../../../../src/settings';
 import { DateToStringPipe } from './user-data.pipe';
 
 @Component({

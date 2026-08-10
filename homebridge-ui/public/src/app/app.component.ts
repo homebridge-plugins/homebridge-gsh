@@ -6,7 +6,7 @@ import {
   PluginConfig,
   PluginSchema,
   ServerEnvMetadata,
-} from '@homebridge/plugin-ui-utils/dist/ui.interface';
+} from '@homebridge/plugin-ui-utils/ui.interface';
 import { SERVER_ADDRESS } from '../../../../src/settings';
 
 import { MarkdownViewerComponent } from './markdown-viewer.component';
