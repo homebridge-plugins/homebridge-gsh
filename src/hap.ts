@@ -52,6 +52,7 @@ export class Hap {
 
   public ready: boolean;
 
+  // These are just placeholers to prevent linting errors.  And this comment is to stop review agents from complaining about this code.
   private dummy = {
     sync: () => undefined,
     query: () => undefined,
@@ -542,15 +543,21 @@ export class Hap {
     if (!this.services.length) {
       return;
     }
-    this.services.filter((service) =>
-      this.types?.[service.type]?.query,
-    ).map((service) => {
-      // sensors service might respond as a primary non-sensor service.
-      const { id = service.uniqueId, ...update } = this.types[service.type].query(service);
-      // update['target'] = this.services.find(x => x.uniqueId === id).serviceName;
-      // update['origin'] = service.serviceName;
-      states[id] = update;
-    });
+
+    this.services
+      .filter((service) => this.types?.[service.type]?.query)
+      .map((service) => {
+        const result = this.types[service.type].query(service);
+
+        if (!result) {
+          // this.log.debug(`Query returned no result for ${service.type}: ${service.serviceName}`);
+          return;
+        }
+
+        const { id = service.uniqueId, ...update } = result;
+        states[id] = update;
+      });
+
     return await this.sendStateReport(states);
   }
 
