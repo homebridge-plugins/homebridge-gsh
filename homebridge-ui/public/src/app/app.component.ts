@@ -1,5 +1,5 @@
 import { NgClass, TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 import {
@@ -19,7 +19,7 @@ const jwtHelper = new JwtHelperService();
 
 @Component({
   selector: 'app-root',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     NgClass,
     TitleCasePipe,
@@ -33,6 +33,7 @@ const jwtHelper = new JwtHelperService();
 export class AppComponent implements OnInit, OnDestroy {
   translateService = inject(TranslateService);
   private userDataService = inject(UserDataService);
+  private cdr = inject(ChangeDetectorRef);
 
   public linkDomain: string = '';
   private linkUrl: string = '';
@@ -51,6 +52,10 @@ export class AppComponent implements OnInit, OnDestroy {
   public userData: any;
 
   async ngOnInit(): Promise<void> {
+    // translations resolve independently of the rest of this method — re-check
+    // this OnPush view once they're ready so the `translateService.ready` gate opens.
+    this.translateService.whenReady.then(() => this.cdr.markForCheck());
+
     this.schema = await window.homebridge.getPluginConfigSchema();
     const configBlocks = await window.homebridge.getPluginConfig();
 
@@ -72,11 +77,13 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.parseToken();
     this.ready = true;
+    this.cdr.markForCheck();
 
     window.homebridge.addEventListener(
       'configChanged',
       (event: MessageEvent) => {
         this.pluginConfig = event.data[0];
+        this.cdr.markForCheck();
       },
     );
 
@@ -122,6 +129,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.parseToken();
     this.justLinked = true;
+    this.cdr.markForCheck();
 
     await this.updateConfig();
     await window.homebridge.savePluginConfig();

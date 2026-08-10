@@ -1,14 +1,16 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { marked } from 'marked';
 import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-markdown-viewer',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './markdown-viewer.component.html',
   styleUrls: ['./markdown-viewer.component.scss'],
 })
 export class MarkdownViewerComponent implements OnChanges {
+  private cdr = inject(ChangeDetectorRef);
+
   @Input() filename!: string;
 
   public html = '';
@@ -45,6 +47,7 @@ export class MarkdownViewerComponent implements OnChanges {
       window.homebridge.toast.error(`Failed to load ${filename}`, 'Error');
     } finally {
       this.loading = false;
+      this.cdr.markForCheck();
     }
   }
 }

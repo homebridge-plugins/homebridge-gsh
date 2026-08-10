@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Input,
@@ -17,7 +18,7 @@ import { DateToStringPipe } from './user-data.pipe';
 
 @Component({
   selector: 'app-user-data',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './user-data.component.html',
   styleUrls: ['./user-data.component.scss'],
   imports: [NgClass, DateToStringPipe],
@@ -25,6 +26,7 @@ import { DateToStringPipe } from './user-data.pipe';
 export class UserDataComponent implements OnInit {
   private userDataService = inject(UserDataService);
   private translateService = inject(TranslateService);
+  private cdr = inject(ChangeDetectorRef);
 
   @Input() pluginConfig!: PluginConfig;
   @Input() linkDomain!: string;
@@ -53,9 +55,11 @@ export class UserDataComponent implements OnInit {
           this.userData = data;
           this.userDataChange.emit(this.userData); // Emit userData to parent
           console.log('✅ User data loaded:', data);
+          this.cdr.markForCheck();
         },
         error: (err) => {
           console.log('❌ Failed to load user data:', err);
+          this.cdr.markForCheck();
         },
       });
   }
@@ -118,12 +122,14 @@ export class UserDataComponent implements OnInit {
                   '✅ Refreshed user data after cancel:',
                   updatedData,
                 );
+                this.cdr.markForCheck();
               },
               error: (err) => {
                 console.error(
                   '❌ Failed to refresh user data after cancel:',
                   err,
                 );
+                this.cdr.markForCheck();
               },
             });
         } else {
@@ -144,6 +150,7 @@ export class UserDataComponent implements OnInit {
       })
       .finally(() => {
         this.isCancelling = false; // Stop spinner
+        this.cdr.markForCheck();
       });
   }
 
@@ -197,11 +204,13 @@ export class UserDataComponent implements OnInit {
         } finally {
           this.isLoadingPayPalButtons = false;
           console.log('✅ All PayPal buttons rendered');
+          this.cdr.markForCheck();
         }
       })
       .catch((error) => {
         console.error('PayPal script failed to load', error);
         this.isLoadingPayPalButtons = false;
+        this.cdr.markForCheck();
       });
   }
 
@@ -274,12 +283,14 @@ export class UserDataComponent implements OnInit {
                     '✅ Refreshed user data after subscription:',
                     updatedData,
                   );
+                  this.cdr.markForCheck();
                 },
                 error: (err) => {
                   console.error(
                     '❌ Failed to refresh user data after subscription:',
                     err,
                   );
+                  this.cdr.markForCheck();
                 },
               });
           },
