@@ -21,7 +21,6 @@ export class Lightbulb extends ghToHap implements ghToHap_t {
     if (service.serviceCharacteristics.find(x => x.uuid === Characteristic.Hue)) {
       traits.push('action.devices.traits.ColorSetting');
       attributes.colorModel = 'hsv';
-      attributes.colorTemp = false;
     }
 
     if (service.serviceCharacteristics.find(x => x.uuid === Characteristic.ColorTemperature)) {
