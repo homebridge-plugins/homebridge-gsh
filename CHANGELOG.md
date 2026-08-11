@@ -2,15 +2,18 @@
 
 All notable changes to `homebridge-gsh` will be documented in this file. This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
-## v4.1.0 (2026-03-23)
+## v4.1.0 (2026-08-23)
 
 ### Changes
 
 - Motion sensors to be enabled #56, tks @banboobee
+- Smoke and Carbon Monoxide sensors #67
+- Added enhancedSkip  - #68, tks @banboobee
+- Combine sensor services to reduce # of exposed devices to google. #69, tks @banboobee
 
 ### Fixes
 
-- Dependancy Updates
+- Dependancy Updates and UI Framework refresh
 
 ## v4.0.3 (2025-09-13)
 
