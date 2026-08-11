@@ -32,6 +32,12 @@ describe('smokeSensor', () => {
         name: 'SmokeLevel',
         currentSensorState: 'no smoke detected',
       }]);
+      smokeSensorTemp.serviceCharacteristics[0].value = 1;
+      expect(smokeSensor.query(smokeSensorTemp).currentSensorStateData).toEqual([{
+        name: 'SmokeLevel',
+        currentSensorState: 'smoke detected',
+      }]);
+      smokeSensorTemp.serviceCharacteristics[0].value = 0;
     });
   });
 
