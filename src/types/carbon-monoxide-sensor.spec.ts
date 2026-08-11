@@ -32,6 +32,12 @@ describe('carbonMonoxideSensor', () => {
         name: 'CarbonMonoxideLevel',
         currentSensorState: 'no carbon monoxide detected',
       }]);
+      carbonMonoxideSensorTemp.serviceCharacteristics[0].value = 1;
+      expect(carbonMonoxideSensor.query(carbonMonoxideSensorTemp).currentSensorStateData).toEqual([{
+        name: 'CarbonMonoxideLevel',
+        currentSensorState: 'carbon monoxide detected',
+      }]);
+      carbonMonoxideSensorTemp.serviceCharacteristics[0].value = 0;
     });
   });
 
