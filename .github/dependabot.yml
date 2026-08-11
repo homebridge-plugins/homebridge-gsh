@@ -2,6 +2,7 @@ version: 2
 updates:
 - package-ecosystem: npm
   directory: "/"
+  target-branch: "beta-4.2.0"
   schedule:
     interval: daily
     time: "10:00"
@@ -25,6 +26,7 @@ updates:
 
 - package-ecosystem: "github-actions"
   directory: "/"
+  target-branch: "beta-4.2.0"
   schedule:
     interval: "daily"
     time: "09:00"
@@ -48,6 +50,7 @@ updates:
 
 - package-ecosystem: npm
   directory: "/homebridge-ui/public"
+  target-branch: "beta-4.2.0"
   schedule:
     interval: daily
     time: "10:00"
