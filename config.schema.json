@@ -235,7 +235,7 @@
         "combineSensors",
         {
           "type": "help",
-          "helpvalue": "<h5><B>For 'appletv-enhanced', enable skip</b></h5><em class='primary-text'>This option will change the behaviour of the next or skip command of the 'appletv-enhanced' plugin, from skip to select.  This will enable the wording 'OK Google, tv skip' to press the select button on the Apple TV remote.  This is useful for skipping adds on YouTube.</em>"
+          "helpvalue": "<h5><B>For 'appletv-enhanced', enable skip</b></h5><em class='primary-text'>This option will change the behaviour of the next or skip command of the 'appletv-enhanced' plugin, from skip to select.  This will enable the wording 'OK Google, tv skip' to press the select button on the Apple TV remote.  This is useful for skipping ads on YouTube.</em>"
 
         },
         "enhancedSkip",
