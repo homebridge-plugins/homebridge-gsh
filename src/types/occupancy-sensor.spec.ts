@@ -1,6 +1,6 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { OccupancySensor } from './occupancy-sensor';
-
 const occupancySensor = new OccupancySensor();
 
 describe('occupancySensor', () => {

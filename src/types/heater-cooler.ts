@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 
-import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
 import { ServiceType } from '@homebridge/hap-client';
-import { Hap } from '../hap';
-import { Characteristic } from '../hap-types';
-import { ghToHap, ghToHap_t } from './ghToHapTypes';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
+import { Characteristic } from '../hap-types.js';
+import { Hap } from '../hap.js';
+import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class HeaterCooler extends ghToHap implements ghToHap_t {
   constructor(

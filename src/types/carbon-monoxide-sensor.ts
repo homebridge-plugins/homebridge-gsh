@@ -3,16 +3,22 @@ import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseComma
 import { Characteristic } from '../hap-types.js';
 import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
-export class OccupancySensor extends ghToHap implements ghToHap_t {
+export class CarbonMonoxideSensor extends ghToHap implements ghToHap_t {
   sync(service: ServiceType) {
     return this.createSyncData(service, {
-      type: 'action.devices.types.SENSOR',
+      type: 'action.devices.types.CARBON_MONOXIDE_DETECTOR',
       traits: [
-        'action.devices.traits.OccupancySensing',
+        'action.devices.traits.SensorState',
       ],
       attributes: {
-        occupancySensorConfiguration: [{
-          occupancySensorType: 'PIR',
+        sensorStatesSupported: [{
+          name: 'CarbonMonoxideLevel',
+          descriptiveCapabilities: {
+            availableStates: [
+              'carbon monoxide detected',
+              'no carbon monoxide detected',
+            ],
+          },
         }],
       },
     });
@@ -21,7 +27,12 @@ export class OccupancySensor extends ghToHap implements ghToHap_t {
   query(service: ServiceType) {
     return {
       online: true,
-      occupancy: service.serviceCharacteristics.find(x => x.uuid === Characteristic.OccupancyDetected)?.value ? 'OCCUPIED' : 'UNOCCUPIED',
+      currentSensorStateData: [{
+        name: 'CarbonMonoxideLevel',
+        currentSensorState: service.serviceCharacteristics.find(x => x.uuid === Characteristic.CarbonMonoxideDetected)?.value
+          ? 'carbon monoxide detected'
+          : 'no carbon monoxide detected',
+      }],
     } as any;
   }
 

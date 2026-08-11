@@ -1,6 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Fan } from './fan';
-
 const fan = new Fan();
 
 describe('fan', () => {
@@ -52,7 +52,7 @@ describe('fan', () => {
     it('fan with On/Off only - Error', async () => {
       expect.assertions(1);
       fanServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
-      expect(fan.execute(fanServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
+      await expect(fan.execute(fanServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });
@@ -89,26 +89,6 @@ const setValue = async function (value: string | number | boolean): Promise<Char
 const setValueError = async function (value: string | number | boolean): Promise<CharacteristicType> {
   // Perform your operations here
   throw new Error('Error setting value');
-  const result: CharacteristicType = {
-    aid: 1,
-    iid: 1,
-    uuid: '00000025-0000-1000-8000-0026BB765291',
-    type: 'On',
-    serviceType: 'Lightbulb',
-    serviceName: 'Trailer Step',
-    description: 'On',
-    value: 0,
-    format: 'bool',
-    perms: [
-      'ev',
-      'pr',
-      'pw',
-    ],
-    canRead: true,
-    canWrite: true,
-    ev: true,
-  };
-  return result;
 };
 
 const getValue = async function (): Promise<CharacteristicType> {

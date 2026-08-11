@@ -5,6 +5,10 @@
   "customUi": true,
   "customUiPath": "./dist/homebridge-ui",
   "customUiDevServer": "http://localhost:4500",
+  "customUiCspDomains": [
+    "https://www.paypal.com",
+    "https://www.paypalobjects.com"
+  ],
   "headerDisplay": "## Homebridge Config UI X Upgrade Required\nhomebridge-config-ui-x v4.6.0 or later is required to configure this plugin correctly. If you are seeing this message you need to upgrade (or reload the UI).\n",
   "footerDisplay": "Search for [Homebridge in the Google Home app](https://assistant.google.com/services/a/uid/000000b558f0d5d1?hl=en) and link the action to complete setup.",
   "schema": {
@@ -94,6 +98,16 @@
         "default": 15,
         "minimum": 15,
         "maximum": 300
+      },
+      "enhancedSkip": {
+        "title": "For 'appletv-enhanced', enable skip",
+        "type": "boolean",
+        "default": false
+      },
+      "combineSensors": {
+        "title": "Sensor services to be combined (Experimental)",
+        "type": "boolean",
+        "default": false
       }
     }
   },
@@ -214,6 +228,17 @@
           "helpvalue": "<h5><B>Force Heater-Cooler devices to show as AC_UNIT</b></h5><em class='primary-text'>This makes heater cooler advertise as an air conditioning unit.</em>"
         },
         "showHeaterCoolerAsACUnit",
+        {
+          "type": "help",
+          "helpvalue": "<h5><B>Combine sensor services</b></h5><em class='primary-text'>Combines sensor servic(es) within a homebridge accessory, and exposes to inside of non-sensor device if possible, or single device. This will help reduce the number of exposed google devices.</em>"
+        },
+        "combineSensors",
+        {
+          "type": "help",
+          "helpvalue": "<h5><B>For 'appletv-enhanced', enable skip</b></h5><em class='primary-text'>This option will change the behaviour of the next or skip command of the 'appletv-enhanced' plugin, from skip to select.  This will enable the wording 'OK Google, tv skip' to press the select button on the Apple TV remote.  This is useful for skipping ads on YouTube.</em>"
+
+        },
+        "enhancedSkip",
         {
           "type": "help",
           "helpvalue": "<h5><B>Delay before starting Discovery</b></h5><em class='primary-text'>Time in seconds after plugin startup to wait before starting discovery. Default is 15 seconds</em>"

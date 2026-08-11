@@ -1,17 +1,13 @@
 import { ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
-import { Characteristic } from '../hap-types';
-import { ghToHap, ghToHap_t } from './ghToHapTypes';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
+import { Characteristic } from '../hap-types.js';
+import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class Switch extends ghToHap implements ghToHap_t {
-  private deviceType: string;
-
-  constructor(type) {
-    super();
-    this.deviceType = type;
-  }
-
   sync(service: ServiceType) {
+    const type = service.type === 'Switch' ?
+      'action.devices.types.SWITCH' :
+      'action.devices.types.OUTLET';
     const traits = [
       'action.devices.traits.OnOff',
     ];
@@ -23,7 +19,7 @@ export class Switch extends ghToHap implements ghToHap_t {
     }
 
     return this.createSyncData(service, {
-      type: this.deviceType,
+      type,
       traits,
     });
   }

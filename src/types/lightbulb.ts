@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 
 import { ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
-import { Characteristic } from '../hap-types';
-import { ghToHap, ghToHap_t } from './ghToHapTypes';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands, SmartHomeV1SyncDevices } from 'actions-on-google';
+import { Characteristic } from '../hap-types.js';
+import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class Lightbulb extends ghToHap implements ghToHap_t {
   sync(service: ServiceType): SmartHomeV1SyncDevices {
@@ -21,7 +21,6 @@ export class Lightbulb extends ghToHap implements ghToHap_t {
     if (service.serviceCharacteristics.find(x => x.uuid === Characteristic.Hue)) {
       traits.push('action.devices.traits.ColorSetting');
       attributes.colorModel = 'hsv';
-      attributes.colorTemp;
     }
 
     if (service.serviceCharacteristics.find(x => x.uuid === Characteristic.ColorTemperature)) {

@@ -1,8 +1,8 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { afterAll, describe, expect, it } from 'vitest';
 import { Hap } from '../hap';
 import { Characteristic } from '../hap-types';
 import { PluginConfig } from '../interfaces';
-
 import { Log } from '../logger';
 
 import { Thermostat } from './thermostat';
@@ -18,7 +18,7 @@ class socketMock {
   }
 
   sendJson(data: any) {
-    // eslint-disable-next-line no-console
+
     console.log('sendJson', data);
   }
 }
@@ -142,10 +142,13 @@ describe('thermostat', () => {
 
     it('thermostat  - Error', async () => {
       expect.assertions(1);
-      thermostatTemp.serviceCharacteristics.find(x => x.uuid === Characteristic.TargetHeatingCoolingState).setValue = setValueError;
+      const characteristic = thermostatTemp.serviceCharacteristics.find(x => x.uuid === Characteristic.TargetHeatingCoolingState);
+      if (characteristic) {
+        characteristic.setValue = setValueError; 
+      }
       // thermostatTemp.serviceCharacteristics[0].setValue = setValueError;
       // const response = thermostat.execute(thermostatTemp, commandThermostatSetModeOff);
-      expect(thermostat.execute(thermostatTemp, commandThermostatSetModeOff)).rejects.toThrow('Error setting value');
+      await expect(thermostat.execute(thermostatTemp, commandThermostatSetModeOff)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });
@@ -185,26 +188,6 @@ const setValue = async function (value: string | number | boolean): Promise<Char
 const setValueError = async function (value: string | number | boolean): Promise<CharacteristicType> {
   // Perform your operations here
   throw new Error('Error setting value');
-  const result: CharacteristicType = {
-    aid: 1,
-    iid: 1,
-    uuid: '00000025-0000-1000-8000-0026BB765291',
-    type: 'On',
-    serviceType: 'Lightbulb',
-    serviceName: 'Trailer Step',
-    description: 'On',
-    value: 0,
-    format: 'bool',
-    perms: [
-      'ev',
-      'pr',
-      'pw',
-    ],
-    canRead: true,
-    canWrite: true,
-    ev: true,
-  };
-  return result;
 };
 
 const getValue = async function (): Promise<CharacteristicType> {

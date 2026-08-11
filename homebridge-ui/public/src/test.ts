@@ -5,7 +5,7 @@ import {
   BrowserDynamicTestingModule,
   platformBrowserDynamicTesting,
 } from '@angular/platform-browser-dynamic/testing'
-import 'zone.js/dist/zone-testing'
+import 'zone.js/testing'
 
 // mock window.homebridge
 import { MockHomebridgePluginUi } from '@homebridge/plugin-ui-utils/dist/ui.mock'

@@ -1,22 +1,29 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
+    "target": "esnext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es6",
-    "sourceMap": true,
+    "rootDir": "./src",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "strict": false,
+    "declaration": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "removeComments": true,
+    "sourceMap": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
   },
   "exclude": [
-    "scripts",
-    "homebridge-ui",
     "node_modules",
     "./dist",
-    "./test"
-  ]
+    "homebridge-ui",
+    "scripts",
+    "test",
+    "**/*spec.ts",
+    "**/*test.ts"
+  ],
+  "angularCompilerOptions": {
+    "strictTemplates": true
+  }
 }

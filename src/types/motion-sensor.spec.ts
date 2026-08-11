@@ -1,6 +1,6 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { MotionSensor } from './motion-sensor';
-
 const motionSensor = new MotionSensor();
 
 describe('motionSensor', () => {

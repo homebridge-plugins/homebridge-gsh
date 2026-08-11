@@ -6,9 +6,11 @@ import { Injectable } from '@angular/core'
 export class TranslateService {
   public translations: Record<string, string>
   public ready = false
+  /** Resolves once translations have loaded — lets OnPush components know when to re-check. */
+  public readonly whenReady: Promise<void>
 
   constructor() {
-    window.homebridge.i18nGetTranslation()
+    this.whenReady = window.homebridge.i18nGetTranslation()
       .then((translations) => {
         this.translations = translations
         this.ready = true

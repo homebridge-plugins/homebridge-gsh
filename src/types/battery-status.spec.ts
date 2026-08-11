@@ -1,4 +1,5 @@
-import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
+import { ServiceType } from '@homebridge/hap-client';
+import { describe, expect, it } from 'vitest';
 import { Battery } from './battery-status';
 
 const battery = new Battery();

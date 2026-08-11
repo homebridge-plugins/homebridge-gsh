@@ -25,7 +25,7 @@ jobs:
 
     steps:
     # checkout repo
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
 
     # get branch / tag name
     - name: Get Branch / Tag Name
@@ -53,7 +53,7 @@ jobs:
     needs: [get_tags]
     name: Publish Release Version
     if: ${{ needs.get_tags.outputs.BRANCH_NAME == 'latest' }}
-    uses: homebridge/.github/.github/workflows/npm-publish-oidc.yml@latest
+    uses: homebridge/.github/.github/workflows/npm-publish-esm-oidc.yml@latest
     with:
       install_cmd: npm ci && cd homebridge-ui/public && npm ci
 
@@ -63,7 +63,7 @@ jobs:
     needs: [get_tags]
     name: Publish Test Version - ${{ needs.get_tags.outputs.BRANCH_NAME }}
     if: ${{ needs.get_tags.outputs.BRANCH_NAME != 'latest' }}
-    uses: homebridge/.github/.github/workflows/npm-publish-oidc.yml@latest
+    uses: homebridge/.github/.github/workflows/npm-publish-esm-oidc.yml@latest
     with:
       tag: ${{ needs.get_tags.outputs.TARGET_IMAGE_TAG }}
       dynamically_adjust_version: true
@@ -75,7 +75,7 @@ jobs:
     needs: [publish_prod_release]
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
     - name: Create Release
       uses: softprops/action-gh-release@v2
       env:

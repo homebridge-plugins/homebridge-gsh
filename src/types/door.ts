@@ -1,7 +1,7 @@
 import { ServiceType } from '@homebridge/hap-client';
-import { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
-import { Characteristic } from '../hap-types';
-import { ghToHap, ghToHap_t } from './ghToHapTypes';
+import type { SmartHomeV1ExecuteRequestCommands, SmartHomeV1ExecuteResponseCommands } from 'actions-on-google';
+import { Characteristic } from '../hap-types.js';
+import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class Door extends ghToHap implements ghToHap_t {
   sync(service: ServiceType) {

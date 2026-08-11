@@ -1,5 +1,5 @@
-import { expect } from '@jest/globals';
-import { ServicesTypes, Service, CharacteristicsTypes, Characteristic } from './hap-types';
+import { describe, expect, test } from 'vitest';
+import { Characteristic, CharacteristicsTypes, Service, ServicesTypes } from './hap-types';
 
 describe('ServicesTypes', () => {
   test('To have atleast 50 elements', () => {

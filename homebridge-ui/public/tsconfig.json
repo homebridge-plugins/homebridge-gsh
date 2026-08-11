@@ -3,18 +3,17 @@
   "compileOnSave": false,
   "compilerOptions": {
     "target": "ES2022",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "strict": false,
     "experimentalDecorators": true,
-    "baseUrl": "./",
+    "esModuleInterop": true,
     "module": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "declaration": false,
-    "downlevelIteration": true,
     "importHelpers": true,
     "outDir": "./dist/out-tsc",
     "sourceMap": true
+  },
+  "angularCompilerOptions": {
+    "strictTemplates": true
   }
 }

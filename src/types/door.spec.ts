@@ -1,7 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { expect } from '@jest/globals';
+import { describe, expect, it } from 'vitest';
 import { Door } from './door';
-
 const door = new Door();
 
 describe('door', () => {
@@ -57,7 +56,7 @@ describe('door', () => {
     it('door with On/Off only - Error', async () => {
       expect.assertions(1);
       doorServiceOnOff.serviceCharacteristics[1].setValue = setValueError;
-      expect(door.execute(doorServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
+      await expect(door.execute(doorServiceOnOff, commandOpenClose)).rejects.toThrow('Error setting value');
       // await sleep(10000)
     });
   });
@@ -94,26 +93,7 @@ const setValue = async function (value: string | number | boolean): Promise<Char
 const setValueError = async function (value: string | number | boolean): Promise<CharacteristicType> {
   // Perform your operations here
   throw new Error('Error setting value');
-  const result: CharacteristicType = {
-    aid: 1,
-    iid: 1,
-    uuid: '00000025-0000-1000-8000-0026BB765291',
-    type: 'On',
-    serviceType: 'Lightbulb',
-    serviceName: 'Trailer Step',
-    description: 'On',
-    value: 0,
-    format: 'bool',
-    perms: [
-      'ev',
-      'pr',
-      'pw',
-    ],
-    canRead: true,
-    canWrite: true,
-    ev: true,
-  };
-  return result;
+
 };
 
 const getValue = async function (): Promise<CharacteristicType> {

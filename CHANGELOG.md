@@ -2,6 +2,19 @@
 
 All notable changes to `homebridge-gsh` will be documented in this file. This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
+## v4.1.0 (2026-08-23)
+
+### Changes
+
+- Motion sensors to be enabled #56, tks @banboobee
+- Smoke and Carbon Monoxide sensors #67
+- Added enhancedSkip  - #68, tks @banboobee
+- Combine sensor services to reduce # of exposed devices to google. #69, tks @banboobee
+
+### Fixes
+
+- Dependency Updates and UI Framework refresh
+
 ## v4.0.3 (2025-09-13)
 
 ### Changes
@@ -90,3 +103,7 @@ So at the present time, we have created a new cloud server to support this offer
 Going forward we will be updating the cloud server and plugin code base, to bring its patch level up to date, and making other enhancements as needed.
 
 Thank You
+
+### Changed
+
+- Updated HapClient initialization to pass individual config properties instead of the entire config object
