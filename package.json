@@ -2,7 +2,7 @@
   "name": "homebridge-gsh",
   "displayName": "Homebridge Google Smart Home",
   "type": "module",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "Google Smart Home",
   "homepage": "https://github.com/homebridge-plugins/homebridge-gsh/blob/latest/README.md",
   "license": "GPL-3.0",
