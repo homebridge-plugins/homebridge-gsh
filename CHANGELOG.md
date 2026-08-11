@@ -13,7 +13,7 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 ### Fixes
 
-- Dependancy Updates and UI Framework refresh
+- Dependency Updates and UI Framework refresh
 
 ## v4.0.3 (2025-09-13)
 
