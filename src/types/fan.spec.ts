@@ -1,62 +1,105 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { describe, expect, it } from 'vitest';
-import { Fan } from './fan';
-const fan = new Fan();
+import { beforeAll, describe, expect, it } from 'vitest';
+import { Fan, Fanv2 } from './fan';
 
-describe('fan', () => {
-  describe('sync message', () => {
-    it('fan with On/Off only', async () => {
-      const response: any = fan.sync(fanServiceOnOff);
-      expect(response).toBeDefined();
-      expect(response.type).toBe('action.devices.types.FAN');
-      expect(response.traits).toContain('action.devices.traits.OnOff');
-      expect(response.traits).not.toContain('action.devices.traits.Brightness');
-      expect(response.traits).not.toContain('action.devices.traits.ColorSetting');
-      expect(response.attributes).not.toBeDefined();
-      // await sleep(10000)
-    });
-  });
-  describe('query message', () => {
-    it('fan with On/Off only', async () => {
-      const response = fan.query(fanServiceOnOff);
-      expect(response).toBeDefined();
-      expect(response.on).toBeDefined();
-      expect(response.online).toBeDefined();
-      // await sleep(10000)
-    });
-  });
+let fan: Fan | Fanv2;
+let fanServiceOnOff: ServiceType;
 
-  describe('execute message', () => {
-    it('fan with On/Off only', async () => {
-      const response = await fan.execute(fanServiceOnOff, commandOnOff);
-      expect(response).toBeDefined();
-      expect(response.ids).toBeDefined();
-      expect(response.status).toBe('SUCCESS');
-      // await sleep(10000)
+['fan', 'fanv2'].forEach((type) => {
+  describe(type, () => {
+    beforeAll(() => {
+      fan = type === 'fan' ? new Fan() : new Fanv2();
+      fanServiceOnOff = type === 'fan' ? fanV1ServiceOnOff : fanV2ServiceOnOff;
     });
 
-    it('fan with On/Off only - commandMalformed', async () => {
-      const response = await fan.execute(fanServiceOnOff, commandMalformed);
-      expect(response).toBeDefined();
-      expect(response.ids).toBeDefined();
-      expect(response.status).toBe('ERROR');
+    describe('sync message', () => {
+      it(`${type} with On/Off only`, async () => {
+        const response: any = fan.sync(fanServiceOnOff);
+        expect(response).toBeDefined();
+        expect(response.type).toBe('action.devices.types.FAN');
+        expect(response.traits).toContain('action.devices.traits.OnOff');
+        expect(response.traits).not.toContain('action.devices.traits.Brightness');
+        expect(response.traits).not.toContain('action.devices.traits.ColorSetting');
+        expect(response.attributes).not.toBeDefined();
+        // await sleep(10000)
+      });
     });
 
-    it('fan with On/Off only - commandIncorrectCommand', async () => {
-      const response = await fan.execute(fanServiceOnOff, commandIncorrectCommand);
-      expect(response).toBeDefined();
-      expect(response.ids).toBeDefined();
-      expect(response.status).toBe('ERROR');
+    describe('query message', () => {
+      it(`${type} with On/Off only`, async () => {
+        const response = fan.query(fanServiceOnOff);
+        expect(response).toBeDefined();
+        expect(response.on).toBeDefined();
+        expect(response.online).toBeDefined();
+        // await sleep(10000)
+      });
     });
 
-    it('fan with On/Off only - Error', async () => {
-      expect.assertions(1);
-      fanServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
-      await expect(fan.execute(fanServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
-      // await sleep(10000)
+    describe('execute message', () => {
+      it(`${type} with On/Off only`, async () => {
+        const response = await fan.execute(fanServiceOnOff, commandOnOff);
+        expect(response).toBeDefined();
+        expect(response.ids).toBeDefined();
+        expect(response.status).toBe('SUCCESS');
+        // await sleep(10000)
+      });
+
+      it(`${type} with On/Off only - commandMalformed`, async () => {
+        const response = await fan.execute(fanServiceOnOff, commandMalformed);
+        expect(response).toBeDefined();
+        expect(response.ids).toBeDefined();
+        expect(response.status).toBe('ERROR');
+      });
+
+      it(`${type} with On/Off only - commandIncorrectCommand`, async () => {
+        const response = await fan.execute(fanServiceOnOff, commandIncorrectCommand);
+        expect(response).toBeDefined();
+        expect(response.ids).toBeDefined();
+        expect(response.status).toBe('ERROR');
+      });
+
+      it(`${type} with On/Off only - Error`, async () => {
+        expect.assertions(1);
+        fanServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
+        await expect(fan.execute(fanServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
+        // await sleep(10000)
+      });
+    });
+    describe('sync message – with FanSpeed', () => {
+      it(`${type} with On/Off + FanSpeed`, () => {
+        const service = type === 'fan' ? fanV1ServiceWithSpeed : fanV2ServiceWithSpeed;
+        const response: any = fan.sync(service);
+
+        expect(response.traits).toContain('action.devices.traits.OnOff');
+        expect(response.traits).toContain('action.devices.traits.FanSpeed');
+        expect(response.attributes).toBeDefined();
+        expect(response.attributes.supportsFanSpeedPercent).toBe(true);
+      });
+    });
+
+    describe('query message – with FanSpeed', () => {
+      it(`${type} with On/Off + FanSpeed`, () => {
+        const service = type === 'fan' ? fanV1ServiceWithSpeed : fanV2ServiceWithSpeed;
+        const response = fan.query(service);
+
+        expect(response.on).toBeDefined();
+        expect(response.online).toBe(true);
+        expect(response.currentFanSpeedPercent).toBe(type === 'fan' ? 50 : 75);
+      });
+    });
+
+    describe('execute message – with FanSpeed', () => {
+      it(`${type} SetFanSpeed`, async () => {
+        const service = type === 'fan' ? fanV1ServiceWithSpeed : fanV2ServiceWithSpeed;
+        const response = await fan.execute(service, commandSetFanSpeed);
+
+        expect(response.status).toBe('SUCCESS');
+        expect(response.ids).toBeDefined();
+      });
     });
   });
 });
+
 
 async function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -333,7 +376,7 @@ const fanServiceHue: ServiceType = {
   getCharacteristic,
 };
 
-const fanServiceOnOff: ServiceType = {
+const fanV1ServiceOnOff: ServiceType = {
   aid: 13,
   iid: 8,
   uuid: '00000043-0000-1000-8000-0026BB765291',
@@ -407,6 +450,145 @@ const fanServiceOnOff: ServiceType = {
   setCharacteristic,
   getCharacteristic,
 };
+
+const fanV2ServiceOnOff: ServiceType = {
+  aid: 13,
+  iid: 8,
+  uuid: '00000043-0000-1000-8000-0026BB765291',
+  type: 'Fan',
+  humanType: 'Fan',
+  serviceName: 'Shed Light',
+  serviceCharacteristics: [
+    {
+      aid: 13,
+      iid: 10,
+      uuid: '000000B0-0000-1000-8000-0026BB765291',
+      type: 'Active',
+      serviceType: 'Fan',
+      serviceName: 'Shed Light',
+      description: 'On',
+      value: 0,
+      format: 'bool',
+      perms: ['ev', 'pr', 'pw'],
+      unit: undefined,
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 11,
+      uuid: '000000E3-0000-1000-8000-0026BB765291',
+      type: 'ConfiguredName',
+      serviceType: 'Fan',
+      serviceName: 'Shed Light',
+      description: 'Configured Name',
+      value: 'Shed Light',
+      format: 'string',
+      perms: ['ev', 'pr', 'pw'],
+      unit: undefined,
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+  ],
+  accessoryInformation: {
+    'Manufacturer': 'Tasmota',
+    'Model': 'WiOn',
+    'Name': 'Shed Light',
+    'Serial Number': '02231D-jessie',
+    'Firmware Revision': '9.5.0tasmota',
+  },
+  values: { On: 0, ConfiguredName: 'Shed Light' },
+  linked: undefined,
+  instance: {
+    name: 'homebridge',
+    username: '1C:22:3D:E3:CF:34',
+    ipAddress: '192.168.1.11',
+    port: 46283,
+    connectionFailedCount: 0,
+    services: [],
+    configurationNumber: 1,
+  },
+  uniqueId: '664195d5556f1e0b424ed32bcd863ec8954c76f8ab81cc399f0e24f8827806d1',
+  refreshCharacteristics,
+  setCharacteristic,
+  getCharacteristic,
+};
+
+// ---------------------------------------------------------------------------
+// Fixtures for FanSpeed (RotationSpeed)
+// ---------------------------------------------------------------------------
+
+const fanV1ServiceWithSpeed: ServiceType = {
+  ...fanV1ServiceOnOff,
+  serviceCharacteristics: [
+    ...fanV1ServiceOnOff.serviceCharacteristics,
+    {
+      aid: 13,
+      iid: 12,
+      uuid: '00000029-0000-1000-8000-0026BB765291', // Characteristic.RotationSpeed
+      type: 'RotationSpeed',
+      serviceType: 'Fan',
+      serviceName: 'Shed Light',
+      description: 'Rotation Speed',
+      value: 50,
+      format: 'float',
+      perms: ['ev', 'pr', 'pw'],
+      unit: 'percentage',
+      maxValue: 100,
+      minValue: 0,
+      minStep: 1,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+  ],
+  values: { ...fanV1ServiceOnOff.values, RotationSpeed: 50 },
+};
+
+const fanV2ServiceWithSpeed: ServiceType = {
+  ...fanV2ServiceOnOff,
+  serviceCharacteristics: [
+    ...fanV2ServiceOnOff.serviceCharacteristics,
+    {
+      aid: 13,
+      iid: 12,
+      uuid: '00000029-0000-1000-8000-0026BB765291',
+      type: 'RotationSpeed',
+      serviceType: 'Fan',
+      serviceName: 'Shed Light',
+      description: 'Rotation Speed',
+      value: 75,
+      format: 'float',
+      perms: ['ev', 'pr', 'pw'],
+      unit: 'percentage',
+      maxValue: 100,
+      minValue: 0,
+      minStep: 1,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+  ],
+  values: { ...fanV2ServiceOnOff.values, RotationSpeed: 75 },
+};
+
+
 
 const fanServiceDimmer: ServiceType = {
   aid: 14,
@@ -523,6 +705,16 @@ const commandOnOff = {
       params: {
         on: true,
       },
+    },
+  ],
+};
+
+const commandSetFanSpeed = {
+  devices: commandOnOff.devices,
+  execution: [
+    {
+      command: 'action.devices.commands.SetFanSpeed',
+      params: { fanSpeedPercent: 40 },
     },
   ],
 };
