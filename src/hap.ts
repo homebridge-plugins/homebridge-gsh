@@ -521,11 +521,16 @@ export class Hap {
 
     for (const uniqueId of pendingStateReport) {
       const service = this.services.find(x => x.uniqueId === uniqueId);
-      if (!this.types?.[service.type]?.query) {
+      if (!service || !this.types?.[service.type]?.query) {
+        continue;
+      }
+      // dummy types (e.g. Speaker, InputSource) return undefined from query()
+      const result = this.types[service.type].query(service);
+      if (!result) {
         continue;
       }
       // sensors service might respond as a non-sensor primary service.
-      const { id = service.uniqueId, ...response } = this.types[service.type].query(service);
+      const { id = service.uniqueId, ...response } = result;
       // response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
       // response['origin'] = service.serviceName;
       // console.log(response);
