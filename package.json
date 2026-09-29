@@ -76,7 +76,7 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.66.0",
     "unplugin-swc": "^1.5.10",
-    "vitest": "^4.1.10"
+    "vitest": "^5.0.2"
   },
   "nodemonConfig": {
     "watch": [
