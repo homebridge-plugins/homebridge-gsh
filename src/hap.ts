@@ -45,6 +45,14 @@ export class Hap {
   private discoveryTimeout: NodeJS.Timeout;
   // eslint-disable-next-line no-undef
   private syncTimeout: NodeJS.Timeout;
+  // eslint-disable-next-line no-undef
+  private reloadTimeout: NodeJS.Timeout;
+  // eslint-disable-next-line no-undef
+  private discoveryRetryTimeout: NodeJS.Timeout;
+  private discoveryRetries = 0;
+  private monitor: Awaited<ReturnType<HapClient['monitorCharacteristics']>>;
+  private readonly discoveryRetryInterval = 30; // seconds
+  private readonly maxDiscoveryRetries = 10;
   private api: API;
   private configDiscoveryTimeout: number;
   private configDiscoveryWait: number;
@@ -261,14 +269,52 @@ export class Hap {
     }
 
     // Set up the timeout
-    this.discoveryTimeout = setTimeout(() => {
+    this.discoveryTimeout = setTimeout(async () => {
       this.log.debug('No more instances discovered, publishing services');
       this.hapClient.removeListener('instance-discovered', this.waitForNoMoreDiscoveries);
-      this.start();
+      await this.start();
       this.requestSync();
-      this.hapClient.on('instance-discovered', this.requestSync.bind(this));  // Request sync on new instance discovery
+      // Instances that register late (e.g. slow to answer at boot) must be loaded, not just synced
+      this.hapClient.on('instance-discovered', this.reloadAccessories.bind(this));
+      this.scheduleDiscoveryRetry();
     }, this.configDiscoveryTimeout * 1000);
   };
+
+  /**
+   * Reload accessories after a late instance discovery, then ask Google to sync
+   */
+  reloadAccessories() {
+    if (this.reloadTimeout) {
+      clearTimeout(this.reloadTimeout);
+    }
+    this.reloadTimeout = setTimeout(async () => {
+      await this.start();
+      this.requestSync();
+    }, this.configDiscoveryTimeout * 1000);
+  }
+
+  /**
+   * If discovery found nothing (common right after a host reboot), restart instance discovery periodically
+   */
+  scheduleDiscoveryRetry() {
+    if (this.services.length) {
+      return;
+    }
+    if (this.discoveryRetries >= this.maxDiscoveryRetries) {
+      this.log.warn(`No accessories discovered after ${this.maxDiscoveryRetries} retries, giving up. Restart the plugin to try again.`);
+      return;
+    }
+    this.discoveryRetries++;
+    // eslint-disable-next-line max-len
+    this.log.warn(`No accessories discovered, retrying instance discovery in ${this.discoveryRetryInterval} seconds (attempt ${this.discoveryRetries} of ${this.maxDiscoveryRetries})`);
+    this.discoveryRetryTimeout = setTimeout(() => {
+      if (this.services.length) {
+        return;
+      }
+      this.hapClient.resetInstancePool();
+      this.scheduleDiscoveryRetry();
+    }, this.discoveryRetryInterval * 1000);
+  }
 
   /**
    * Start processing
@@ -281,7 +327,13 @@ export class Hap {
     const evServices: ServiceType[] = this.services.filter(x => this.evTypes.some(uuid => x.serviceCharacteristics.find(c => c.uuid === uuid)));
     this.log.debug(`Monitoring ${evServices.length} services for changes`);
 
+    // start() can run again (late instances / discovery retries), so close the previous monitor first
+    if (this.monitor) {
+      this.monitor.finish();
+      this.monitor.removeAllListeners();
+    }
     const monitor = await this.hapClient.monitorCharacteristics(evServices);
+    this.monitor = monitor;
     monitor.on('service-update', (services) => {
       // this.log.debug(`Service Update ${services}`);
       services.map((service: any) => {
@@ -593,6 +645,15 @@ export class Hap {
     }
     if (this.syncTimeout) {
       clearTimeout(this.syncTimeout);
+    }
+    if (this.reloadTimeout) {
+      clearTimeout(this.reloadTimeout);
+    }
+    if (this.discoveryRetryTimeout) {
+      clearTimeout(this.discoveryRetryTimeout);
+    }
+    if (this.monitor) {
+      this.monitor.finish();
     }
     if (this.hapClient) {
       this.hapClient.destroy();
