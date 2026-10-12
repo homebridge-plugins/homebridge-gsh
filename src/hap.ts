@@ -7,13 +7,13 @@ import { Characteristic } from './hap-types.js';
 
 import { PluginConfig } from './interfaces.js';
 import { Log } from './logger.js';
-import { Door } from './types/door.js';
 
 import type { API } from 'homebridge';
 import { createHash } from 'node:crypto';
 import { Battery } from './types/battery-status.js';
 import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor.js';
 import { ContactSensor } from './types/contact-sensor.js';
+import { Door } from './types/door.js';
 import { Fan, Fanv2 } from './types/fan.js';
 import { GarageDoorOpener } from './types/garage-door-opener.js';
 import { HeaterCooler } from './types/heater-cooler.js';
@@ -25,6 +25,7 @@ import { OccupancySensor } from './types/occupancy-sensor.js';
 import { SecuritySystem } from './types/security-system.js';
 import { Sensor } from './types/sensors.js';
 import { SmokeSensor } from './types/smoke-sensor.js';
+import { Speaker } from './types/speaker.js';
 import { Switch } from './types/switch.js';
 import { Television } from './types/television.js';
 import { TemperatureSensor } from './types/temperature-sensor.js';
@@ -51,13 +52,6 @@ export class Hap {
 
   public ready: boolean;
 
-  // These are just placeholers to prevent linting errors.  And this comment is to stop review agents from complaining about this code.
-  private dummy = {
-    sync: () => undefined,
-    query: () => undefined,
-    execute: () => undefined,
-  };
-
   /* GSH Supported types */
   types = {
     Door: new Door(),
@@ -76,8 +70,9 @@ export class Hap {
     Thermostat: new Thermostat(this),
     Window: new Window(),
     WindowCovering: new WindowCovering(),
-    Speaker: this.dummy,
-    InputSource: this.dummy,
+    SmartSpeaker: new Speaker(this),
+    Speaker: new Speaker(this),
+    InputSource: undefined,
     ContactSensor: new ContactSensor(),
     CarbonMonoxideSensor: new CarbonMonoxideSensor(),
     SmokeSensor: new SmokeSensor(),
@@ -126,6 +121,7 @@ export class Hap {
     Characteristic.SecuritySystemTargetState,
     Characteristic.SecuritySystemCurrentState,
     Characteristic.ActiveIdentifier,
+    Characteristic.Volume,
     Characteristic.Mute,
     Characteristic.ContactSensorState,
     Characteristic.CarbonMonoxideDetected,
@@ -158,49 +154,74 @@ export class Hap {
     this.accessorySerialFilter = config.accessorySerialFilter || [];
     this.instanceBlacklist = config.instanceDenylist || [];
 
-    if (config.combineSensors) {
-      Object.keys(this.types).forEach(type => {
-        if (this.types[type] === this.dummy) {
-          return;
+    Object.keys(this.types).forEach(type => {
+      if (this.types[type] === undefined) {
+        return;
+      }
+      // refer Speaker as a representative device class
+      const base = this.types[type].constructor as typeof Speaker;
+      this.types[type] = new class extends base {
+        private types;
+
+        constructor(hap) {
+          super(hap);
+          this.types = hap.types;
         }
-        this.types[type] = new class extends this.types[type].constructor {
-          private primaryService = {};
-          private secondaryServices = {};
-          private types;
 
-          constructor(hap) {
-            super(hap);
-            this.types = hap.types;
+        sync(service, primaryResponse) {
+          const response = super.sync(service, primaryResponse);// setup hierarchy
+          const primary = Speaker.primaryService[service.uniqueId];
+
+          if (primary && !primaryResponse) {                    // upward traversal to find a root node.
+            return this.types[primary.type].sync(primary);      // responds as root node.
+          }
+          Speaker.secondaryServices[service.uniqueId]?.forEach(secondary => {
+            const update = this.types[secondary.type].sync(secondary, response);
+            const attribute = { ...response.attributes, ...update.attributes };
+            response.traits = [...new Set([...response.traits, ...update.traits])];
+            if (Object.keys(attribute).length > 0) {
+              response.attributes = attribute;
+            }
+          });
+          return response;
+        }
+
+        query(service, primaryResponse) {
+          const primary = Sensor.primaryService[service.uniqueId];
+          if (primary && !primaryResponse) {
+            // upward traversal to find a root node
+            const response = this.types[primary.type].query(primary);
+            response['id'] ??= primary.uniqueId; // responds as root node.
+            return response;
           }
 
-          sync(service) {
-            const response = super.sync(service);
-            this.secondaryServices[service.uniqueId]?.forEach(secondary => {
-              const update = this.types[secondary.type].sync(secondary, response);
-              const attribute = { ...response.attributes, ...update.attributes };
-              response.traits = [...response.traits, ...update.traits];
-              if (Object.keys(attribute).length > 0) {
-                response.attributes = attribute;
+          const response = super.query(service, primaryResponse);
+          Speaker.secondaryServices[service.uniqueId]?.forEach(secondary => {
+            const update = this.types[secondary.type].query(secondary, response);
+            Object.assign(response, update);
+          });
+          return response;
+        }
+
+        async execute(service, command) {
+          let response = await super.execute(service, command);
+          if (response) {
+            return response;
+          }
+          for (const secondary of Speaker.secondaryServices[service.uniqueId] ?? []) {
+            if ((response = await this.types[secondary.type].execute(secondary, command))) {
+              response.ids = [service.uniqueId];
+              if (response.status !== 'SUCCESS') {
+                return response;
               }
-            });
-            return response;
+            }
           }
+          return response ?? { ids: [service.uniqueId], status: 'ERROR', debugString: `unknown command ${command.execution[0].command}` };
+        }
+      }(this);
+    });
 
-          query(service) {
-            const response = super.query(service);
-            this.secondaryServices[service.uniqueId]?.forEach(secondary => {
-              const update = this.types[secondary.type].query(secondary, response);
-              Object.assign(response, update);
-            });
-            return response;
-          }
-
-          exec(service, command) {
-            return super.exec(service, command);
-          }
-        }(this);
-      });
-
+    if (config.combineSensors) {
       for (const service of this.sensorServices) {
         this.sensorTypes[service] = this.types[service];
         this.types[service] = this.sensors;
@@ -295,6 +316,7 @@ export class Hap {
    * Build Google SYNC intent payload
    */
   async buildSyncResponse(): Promise<SmartHomeV1SyncDevices[]> {
+    Speaker.reset();    // initialize hierarchy
     const devices = this.services.filter((service) =>
       this.types?.[service.type]?.sync,
     ).reduce((response, service) => {
@@ -304,7 +326,7 @@ export class Hap {
       }
       const ix = response.findIndex(x => x.id === update.id);
       if (ix > -1) {
-        // sensors service might rebuild primary non-sensor service response.
+        // secondary service might rebuild primary service response.
         // console.log('updated sync response.', service.serviceName, update);
         response[ix] = update;
         return response;
@@ -372,8 +394,8 @@ export class Hap {
         if (service) {
           this.log.debug(`Processing command ${command.execution[0].command} for ${device.id} and ${service.serviceName}`);
           // check if two factor auth is required, and if we have it
-          if (this.config.twoFactorAuthPin && this.types[service.type].twoFactorRequired
-            && this.types[service.type].is2faRequired(command)
+          if (this.config.twoFactorAuthPin && this.types[service.type]?.twoFactorRequired
+            && this.types[service.type]?.is2faRequired(command)
             && !(command.execution.length && command.execution[0].challenge
               && command.execution[0].challenge.pin === this.config.twoFactorAuthPin.toString()
             )
@@ -442,7 +464,7 @@ export class Hap {
           this.log.error(`Failed to write discovery response to file: ${e.message}`);
         }
       }
-      services = services.filter(x => this.types[x.type] !== undefined);
+      services = services.filter(x => x.type in this.types);
       this.log.debug(`Loaded ${services.length} accessories from Homebridge - pre filter`);
       services = services.filter(x => !this.instanceBlacklist.find(y => y === x?.instance?.username));
       // Pre-compile accessoryFilter strings into RegExp objects
@@ -466,7 +488,7 @@ export class Hap {
       services = services.filter(x => !this.accessorySerialFilter.includes(x.accessoryInformation['Serial Number']));
       // if 2fa is forced for this service type, but a pin has not been set ignore the service
       services = services.filter(x => {
-        if (this.types[x.type].twoFactorRequired && !this.config.twoFactorAuthPin && !this.config.disablePinCodeRequirement) {
+        if (this.types[x.type]?.twoFactorRequired && !this.config.twoFactorAuthPin && !this.config.disablePinCodeRequirement) {
           this.log.warn(`Not registering ${x.serviceName} - Pin code has not been set and is required for secure ` +
             `${x.type} accessory types. See https://git.io/JUQWX`);
           return false;
@@ -521,18 +543,13 @@ export class Hap {
 
     for (const uniqueId of pendingStateReport) {
       const service = this.services.find(x => x.uniqueId === uniqueId);
-      if (!service || !this.types?.[service.type]?.query) {
+      if (!this.types?.[service?.type]?.query) {
         continue;
       }
-      // dummy types (e.g. Speaker, InputSource) return undefined from query()
-      const result = this.types[service.type].query(service);
-      if (!result) {
-        continue;
-      }
-      // sensors service might respond as a non-sensor primary service.
-      const { id = service.uniqueId, ...response } = result;
-      // response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
-      // response['origin'] = service.serviceName;
+      // secondary services respond as a primary service.
+      const { id = service.uniqueId, ...response } = this.types[service.type].query(service);
+      response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
+      response['origin'] = service.serviceName;
       // console.log(response);
       states[id] = response;
     }
@@ -551,14 +568,10 @@ export class Hap {
     this.services
       .filter((service) => this.types?.[service.type]?.query)
       .map((service) => {
-        const result = this.types[service.type].query(service);
-
-        if (!result) {
-          // this.log.debug(`Query returned no result for ${service.type}: ${service.serviceName}`);
-          return;
-        }
-
-        const { id = service.uniqueId, ...update } = result;
+        // secondary services might respond as a primary service.
+        const { id = service.uniqueId, ...update } = this.types[service.type].query(service);
+        // update['target'] = this.services.find(x => x.uniqueId === id).serviceName;
+        // update['origin'] = service.serviceName;
         states[id] = update;
       });
 
