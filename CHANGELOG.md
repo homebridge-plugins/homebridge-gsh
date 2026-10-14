@@ -2,6 +2,12 @@
 
 All notable changes to `homebridge-gsh` will be documented in this file. This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
+## v4.2.0 (Unreleased)
+
+### Changes
+
+- Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming).
+
 ## v4.1.0 (2026-08-23)
 
 ### Changes
