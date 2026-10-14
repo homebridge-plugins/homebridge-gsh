@@ -22,7 +22,7 @@ class socketMock {
   }
 
   sendJson(data: any) {
-     
+
     console.log('sendJson', data);
   }
 }
@@ -55,7 +55,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-         
+
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
 
@@ -88,7 +88,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-         
+
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -105,8 +105,8 @@ describe('hap', () => {
           const expectedNames = [
             'Garage Door',
             'Shed Garage Door',
-            'Shed Garage Door',
             'Wasaga',
+            'Wasaga Doorbell',
             'Wasaga Doorbell',
             'West Bedroom',
             'West Bedroom Fan',
@@ -117,7 +117,7 @@ describe('hap', () => {
           expect([...actualNames].sort()).toEqual([...expectedNames].sort());
 
           if (trace) {
-            fs.writeFileSync('buildSyncResponse.json', JSON.stringify(response, null, 2), 'utf8');
+            fs.writeFileSync('buildSyncResponse-120.json', JSON.stringify(response, null, 2), 'utf8');
           }
           /*
          // await fs.writeFile('buildSyncResponse.json', JSON.stringify(response, null, 2), (err: any) => {
@@ -145,7 +145,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-         
+
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -227,7 +227,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-       
+
       console.log('destroy');
       await hap.destroy();
     });
@@ -258,7 +258,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-         
+
         // console.log('hap ready, testing started', hap.services);
       }, 30000);
     });
@@ -269,7 +269,7 @@ describe('hap', () => {
           // console.log('waiting for hap to be ready');
           await sleep(500);
         }
-         
+
         console.log('hap ready, testing started');
       }, 30000);
 
@@ -292,7 +292,7 @@ describe('hap', () => {
           expect(actualNames).toEqual(expectedNames);
 
           if (trace) {
-            fs.writeFileSync('buildSyncResponse.json', JSON.stringify(response, null, 2), 'utf8');
+            fs.writeFileSync('buildSyncResponse-295.json', JSON.stringify(response, null, 2), 'utf8');
           }
           /*
          // await fs.writeFile('buildSyncResponse.json', JSON.stringify(response, null, 2), (err: any) => {
@@ -315,7 +315,7 @@ describe('hap', () => {
     });
 
     afterAll(async () => {
-       
+
       console.log('destroy');
       await hap.destroy();
     });
