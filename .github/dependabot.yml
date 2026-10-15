@@ -11,6 +11,10 @@ updates:
   - NorthernMan54
   labels:
     - "dependencies"
+  # typescript-eslint and Angular don't support TypeScript 7 yet; remove once they do
+  ignore:
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major"]
   # Group related updates together (optional)
   groups:
     packages:
@@ -59,6 +63,10 @@ updates:
   - NorthernMan54
   labels:
     - "dependencies"
+  # typescript-eslint and Angular don't support TypeScript 7 yet; remove once they do
+  ignore:
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major"]
   # Group related updates together (optional)
   groups:
     ui-packages:
