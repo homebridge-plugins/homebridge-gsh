@@ -56,6 +56,8 @@ Control your supported [Homebridge](https://github.com/homebridge/homebridge) ac
 
 _Note: Google Smart Home does not currently support all "sensor" devices such as Motion Sensors or Occupancy Sensors etc._
 
+_Note: Doorbells are supported for notifications only. When the doorbell is pressed, Google Home speakers announce that someone is at the door. There is no video streaming, and voice notifications for the doorbell must be enabled in the Google Home app._
+
 ## Subscription Required
 
 As of May 2025, homebridge-gsh requires a subscription to operate. This change supports the maintenance of the secure cloud infrastructure that enables integration with Google Smart Home. New users will receive a 7-day free trial. Existing users will be gradually enrolled starting in mid June 2025.
@@ -102,6 +104,7 @@ This plugin **must** only be configured on one Homebridge instance on your netwo
 ## Known Issues
 
 1. Only one Homebridge instance can be linked to an account (even across different local networks). You will experience unintended results if you try and link more than one instance to the same account.
+2. Doorbells show no controls or status on home.google.com, and the Google Home iPhone app may list the doorbell as "Offline". This is a limitation of how Google Home displays doorbells without a camera; doorbell announcements still work.
 
 ## Troubleshooting
 
