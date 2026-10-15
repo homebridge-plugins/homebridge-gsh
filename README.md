@@ -45,6 +45,7 @@ Control your supported [Homebridge](https://github.com/homebridge/homebridge) ac
 - Window
 - Window Coverings
 - Door
+- Doorbell Notifications
 - Garage Door (2FA required)
 - Thermostat / Heater Cooler
 - Television (On / Off)
