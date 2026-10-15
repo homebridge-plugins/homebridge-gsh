@@ -11,6 +11,7 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 ### Fixes
 
+- Fix voice commands controlling the wrong device on multi-service accessories (e.g. "Turn on West Bedroom" turning on the fan instead of the light). The accessory name is no longer sent to Google as a default name for every service, and is only used when a service has no name of its own. A sync with Google ("Hey Google, sync my devices") may be required.
 - Fix child bridge crash on state reports for TV speakers and input sources #95, tks @jrundquist
 - Dependency updates, including fast-uri security fix
 
