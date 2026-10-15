@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { Hap } from './hap';
+import { Characteristic } from './hap-types';
 
 // processPendingStateReports only touches `services`, `types` and `sendStateReport`,
 // so exercise it against a minimal context instead of a live Homebridge instance.
@@ -60,5 +61,78 @@ describe('processPendingStateReports', () => {
     await processPendingStateReports(ctx, ['speaker']);
 
     expect(ctx.sendStateReport).toHaveBeenCalledWith({});
+  });
+});
+
+describe('handleServiceUpdate', () => {
+  // handleServiceUpdate only touches `types`, `sendNotification` and `reportStateSubject`.
+  function makeContext(isPress: boolean) {
+    return {
+      types: {
+        Doorbell: {
+          isPress: vi.fn(() => isPress),
+          notification: vi.fn((service: any) => ({ [service.uniqueId]: { ObjectDetection: {} } })),
+        },
+      },
+      sendNotification: vi.fn(),
+      reportStateSubject: { next: vi.fn() },
+    };
+  }
+
+  function handleServiceUpdate(ctx: any, services: any[]) {
+    return Hap.prototype.handleServiceUpdate.call(ctx, services);
+  }
+
+  it('sends a doorbell press as a notification, not a state report', () => {
+    const ctx = makeContext(true);
+
+    handleServiceUpdate(ctx, [{ uniqueId: 'doorbell', type: 'Doorbell' }]);
+
+    expect(ctx.sendNotification).toHaveBeenCalledWith({ doorbell: { ObjectDetection: {} } });
+    expect(ctx.reportStateSubject.next).not.toHaveBeenCalled();
+  });
+
+  it('sends nothing for a doorbell event that is not a press', () => {
+    const ctx = makeContext(false);
+
+    handleServiceUpdate(ctx, [{ uniqueId: 'doorbell', type: 'Doorbell' }]);
+
+    expect(ctx.sendNotification).not.toHaveBeenCalled();
+    expect(ctx.reportStateSubject.next).not.toHaveBeenCalled();
+  });
+
+  it('queues state reports for other service types', () => {
+    const ctx = makeContext(true);
+
+    handleServiceUpdate(ctx, [{ uniqueId: 'light', type: 'Lightbulb' }]);
+
+    expect(ctx.reportStateSubject.next).toHaveBeenCalledWith('light');
+    expect(ctx.sendNotification).not.toHaveBeenCalled();
+  });
+});
+
+describe('doorbell events', () => {
+  const log = { debug: vi.fn(), info: vi.fn(), warn: vi.fn(), error: vi.fn() };
+
+  it('monitors ProgrammableSwitchEvent so doorbell presses are received', async () => {
+    const hap = new Hap({ sendJson: vi.fn() }, log, '031-45-154', {} as any, undefined);
+    try {
+      expect(hap.evTypes).toContain(Characteristic.ProgrammableSwitchEvent);
+    } finally {
+      await hap.destroy();
+    }
+  });
+
+  it('sends the notification to the relay as a report-notification message', async () => {
+    const ctx = { log, socket: { sendJson: vi.fn() } };
+    const notifications = { doorbell: { ObjectDetection: { objects: { unclassified: 1 }, priority: 0, detectionTimestamp: 1 } } };
+
+    await Hap.prototype.sendNotification.call(ctx, notifications);
+
+    expect(ctx.socket.sendJson).toHaveBeenCalledTimes(1);
+    expect(ctx.socket.sendJson).toHaveBeenCalledWith({
+      type: 'report-notification',
+      body: notifications,
+    });
   });
 });
