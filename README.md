@@ -46,6 +46,7 @@ Control your supported [Homebridge](https://github.com/homebridge/homebridge) ac
 - Window Coverings
 - Door
 - Doorbell Notifications
+  - _Note: Doorbells are supported for notifications only. When the doorbell is pressed, Google Home speakers announce that someone is at the door. There is no video streaming, and voice notifications for the doorbell must be enabled in the Google Home app._
 - Garage Door (2FA required)
 - Thermostat / Heater Cooler
 - Television (On / Off)
@@ -55,8 +56,6 @@ Control your supported [Homebridge](https://github.com/homebridge/homebridge) ac
 - Humidity Sensor
 
 _Note: Google Smart Home does not currently support all "sensor" devices such as Motion Sensors or Occupancy Sensors etc._
-
-_Note: Doorbells are supported for notifications only. When the doorbell is pressed, Google Home speakers announce that someone is at the door. There is no video streaming, and voice notifications for the doorbell must be enabled in the Google Home app._
 
 ## Subscription Required
 
