@@ -6,7 +6,13 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 ### Changes
 
-- Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming).
+- Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming). #103
+- Fan speed control for fans #92
+
+### Fixes
+
+- Fix child bridge crash on state reports for TV speakers and input sources #95, tks @jrundquist
+- Dependency updates, including fast-uri security fix
 
 ## v4.1.0 (2026-08-23)
 
