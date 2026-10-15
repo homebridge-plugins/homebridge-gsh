@@ -4,6 +4,10 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 ## v4.2.0 (Unreleased)
 
+### Breaking Changes
+
+- Devices now only answer to their own name. Before, every part of an accessory also answered to the accessory's name, so a ceiling fan accessory called "West Bedroom" with a light and a fan meant "Turn on West Bedroom" could turn on the fan. Now only the light called "West Bedroom" responds, and the fan answers to "West Bedroom Fan". If you used an accessory's name to control several things at once (e.g. "Turn off Office Power Bar"), put them in a Google Home room or group instead. #104
+
 ### Changes
 
 - Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming). #103
@@ -11,6 +15,7 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 ### Fixes
 
+- Fix voice commands controlling the wrong device on multi-service accessories (e.g. "Turn on West Bedroom" turning on the fan instead of the light). #104
 - Fix child bridge crash on state reports for TV speakers and input sources #95, tks @jrundquist
 - Dependency updates, including fast-uri security fix
 
