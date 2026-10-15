@@ -119,13 +119,26 @@ export class Plugin {
 
     // this.log.debug(devices);
 
-    return {
+    const response = {
       requestId: body.requestId,
       payload: {
         agentUserId: null, // this is populated by the server
         devices,
       },
     };
+
+    if (this.config.debug) {
+      try {
+        // write the sync response to a file for debugging
+        const storagePath = this.api.user.storagePath() + '/homebridge-gsh-sync.json';
+        this.log.warn(`Writing Sync Response to ${storagePath}`);
+        fs.writeFileSync(storagePath, JSON.stringify(response, null, 2));
+      } catch (e) {
+        this.log.error(`Failed to write sync response to file: ${e.message}`);
+      }
+    }
+
+    return response;
   }
 
   async onQuery(body) {

@@ -13,3 +13,4 @@ test/hbConfig/homebridge-gsh-discovery.json
 test/hbConfig/auth.json
 test/testPasswords
 /chrome-profile
+test/hbConfig/homebridge-gsh-sync.json
