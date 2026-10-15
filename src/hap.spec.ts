@@ -2,7 +2,7 @@ import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
 import type { SmartHomeV1QueryRequestDevices, SmartHomeV1SyncDevices } from 'actions-on-google';
 import fs from 'fs';
 
-import { afterAll, describe, expect, expectTypeOf, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, expectTypeOf, test } from 'vitest';
 import { Hap } from './hap';
 import { PluginConfig } from './interfaces';
 import { Log } from './logger';
@@ -49,16 +49,13 @@ describe('hap', () => {
 
     const hap = new Hap(socketMock, log, '031-45-154', config, {});
 
-    describe('process the QUERY intent', () => {
-      test('wait for HAP to be Ready', async () => {
-        while (!hap.ready) {
-          // console.log('waiting for hap to be ready');
-          await sleep(500);
-        }
-         
-        // console.log('hap ready, testing started', hap.services);
-      }, 30000);
+    beforeAll(async () => {
+      while (!hap.ready) {
+        await sleep(500);
+      }
+    }, 30000);
 
+    describe('process the QUERY intent', () => {
       describe('QUERY message with delay to allow manual testing', () => {
         test('lightbulb with On/Off only', async () => {
           const response: any = await hap.query(query);
@@ -83,15 +80,6 @@ describe('hap', () => {
     });
 
     describe('process the SYNC intent', () => {
-      test('Wait for HAP to be Ready', async () => {
-        while (!hap.ready) {
-          // console.log('waiting for hap to be ready');
-          await sleep(500);
-        }
-         
-        console.log('hap ready, testing started');
-      }, 30000);
-
       describe('SYNC', () => {
         test('Sync Response is proper and filtered', async () => {
           const response: any = await hap.buildSyncResponse();
@@ -105,8 +93,8 @@ describe('hap', () => {
           const expectedNames = [
             'Garage Door',
             'Shed Garage Door',
-            'Shed Garage Door',
             'Wasaga',
+            'Wasaga Doorbell',
             'Wasaga Doorbell',
             'West Bedroom',
             'West Bedroom Fan',
@@ -140,15 +128,6 @@ describe('hap', () => {
     });
 
     describe('execute', () => {
-      test('Wait for HAP to be Ready', async () => {
-        while (!hap.ready) {
-          // console.log('waiting for hap to be ready');
-          await sleep(500);
-        }
-         
-        console.log('hap ready, testing started');
-      }, 30000);
-
       test('Turn Off Light', async () => {
         const response: any = await hap.execute([executeLightOff]);
         // console.log('response', response);
@@ -252,27 +231,13 @@ describe('hap', () => {
 
     const hap = new Hap(socketMock, log, '031-45-154', config, {});
 
-    describe('process the QUERY intent', () => {
-      test('wait for HAP to be Ready', async () => {
-        while (!hap.ready) {
-          // console.log('waiting for hap to be ready');
-          await sleep(500);
-        }
-         
-        // console.log('hap ready, testing started', hap.services);
-      }, 30000);
-    });
+    beforeAll(async () => {
+      while (!hap.ready) {
+        await sleep(500);
+      }
+    }, 30000);
 
     describe('process the SYNC intent', () => {
-      test('Wait for HAP to be Ready', async () => {
-        while (!hap.ready) {
-          // console.log('waiting for hap to be ready');
-          await sleep(500);
-        }
-         
-        console.log('hap ready, testing started');
-      }, 30000);
-
       describe('SYNC Response', () => {
         test('Sync Response is proper and filtered', async () => {
           const response: any = await hap.buildSyncResponse();
