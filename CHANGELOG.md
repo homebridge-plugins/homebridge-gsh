@@ -2,6 +2,24 @@
 
 All notable changes to `homebridge-gsh` will be documented in this file. This project tries to adhere to [Semantic Versioning](http://semver.org/).
 
+## v4.2.0 (Unreleased)
+
+### Breaking Changes
+
+- Devices now only answer to their own name. Before, every part of an accessory also answered to the accessory's name, so a ceiling fan accessory called "West Bedroom" with a light and a fan meant "Turn on West Bedroom" could turn on the fan. Now only the light called "West Bedroom" responds, and the fan answers to "West Bedroom Fan". If you used an accessory's name to control several things at once (e.g. "Turn off Office Power Bar"), put them in a Google Home room or group instead. #104
+
+### Changes
+
+- Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming). #103
+- Fan speed control for fans #92
+  - Named fan speeds - "Set Bedroom Fan to low / medium / high" or "speed 2". Fans with 2-10 Rotation Speed steps (from `minStep`) get one named speed per step, other fans get low / medium / high presets at 33 / 66 / 100%. Percentage control still works. Say "Hey Google, sync my devices" after updating. See [Fan Voice Commands](README.md#fan-voice-commands). #92
+
+### Fixes
+
+- Fix voice commands controlling the wrong device on multi-service accessories (e.g. "Turn on West Bedroom" turning on the fan instead of the light). #104
+- Fix child bridge crash on state reports for TV speakers and input sources #95, tks @jrundquist
+- Dependency updates, including fast-uri security fix
+
 ## v4.1.0 (2026-08-23)
 
 ### Changes

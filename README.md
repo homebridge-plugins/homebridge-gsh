@@ -40,11 +40,15 @@ Control your supported [Homebridge](https://github.com/homebridge/homebridge) ac
   - On / Off
   - Brightness
   - Color (Hue/Saturation)
-- Fan (On / Off)
-- Fan v2 (On / Off)
+- Fan / Fan v2
+  - On / Off
+  - Fan Speed (percentage and named speeds, see [Fan Voice Commands](#fan-voice-commands))
+  - Reverse (when the fan supports Rotation Direction)
 - Window
 - Window Coverings
 - Door
+- Doorbell Notifications
+  - _Note: Doorbells are supported for notifications only. When the doorbell is pressed, Google Home speakers announce that someone is at the door. There is no video streaming, and voice notifications for the doorbell must be enabled in the Google Home app._
 - Garage Door (2FA required)
 - Thermostat / Heater Cooler
 - Television (On / Off)
@@ -98,9 +102,36 @@ This plugin **must** only be configured on one Homebridge instance on your netwo
 - all instances must be running [in insecure mode](https://github.com/homebridge/homebridge-config-ui-x/wiki/Enabling-Accessory-Control)
 - all instances must have the same PIN defined in the `config.json`
 
+## Fan Voice Commands
+
+Fans that expose a Rotation Speed characteristic can be controlled by percentage or by named speed. The named speeds come from the Rotation Speed `minStep`:
+
+| Fan reports | Named speeds |
+|---|---|
+| `minStep` of 1 or none (continuous) | `low` (33%), `medium` (66%), `high` (100%) |
+| 2 steps (e.g. `minStep` 50) | `low`, `high` |
+| 3 steps (e.g. `minStep` 33.33) | `low`, `medium`, `high` |
+| 4 to 10 steps (e.g. `minStep` 16.67 for a 6-speed fan) | `speed 1` … `speed N` |
+
+Example commands, using a fan named "Bedroom Fan":
+
+- "Hey Google, turn on / turn off Bedroom Fan"
+- "Hey Google, set Bedroom Fan to low / medium / high"
+- "Hey Google, set Bedroom Fan to speed 2" (also "level 2"; "low" / "minimum" and "high" / "maximum" always pick the lowest and highest speed)
+- "Hey Google, set Bedroom Fan to 40 percent"
+- "Hey Google, what speed is Bedroom Fan on?"
+- "Hey Google, reverse Bedroom Fan" (only if the fan supports Rotation Direction)
+
+_Notes:_
+
+- _Use "turn off" to stop the fan. Off is handled by On / Off, not as a named speed._
+- _"Increase / decrease fan speed" is not supported yet._
+- _Named speeds are English only. After updating, say "Hey Google, sync my devices" so Google picks up the new speeds._
+
 ## Known Issues
 
 1. Only one Homebridge instance can be linked to an account (even across different local networks). You will experience unintended results if you try and link more than one instance to the same account.
+2. Doorbells show no controls or status on home.google.com, and the Google Home iPhone app may list the doorbell as "Offline". This is a limitation of how Google Home displays doorbells without a camera; doorbell announcements still work.
 
 ## Troubleshooting
 
