@@ -1,6 +1,6 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { Fan, Fanv2 } from './fan';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { Fan, Fanv2, getFanSpeedSteps } from './fan';
 
 let fan: Fan | Fanv2;
 let fanServiceOnOff: ServiceType;
@@ -97,13 +97,95 @@ let fanServiceOnOff: ServiceType;
         expect(response.ids).toBeDefined();
       });
     });
+
+    describe('named fan speeds – stepped RotationSpeed', () => {
+      it(`${type} continuous fan exposes low/medium/high presets`, () => {
+        const service = type === 'fan' ? fanV1ServiceWithSpeed : fanV2ServiceWithSpeed;
+        const response: any = fan.sync(service);
+        expect(response.attributes.supportsFanSpeedPercent).toBe(true);
+        expect(response.attributes.availableFanSpeeds.speeds.map((s: any) => s.speed_name)).toEqual(['low', 'medium', 'high']);
+        expect(fan.query(service).currentFanSpeedSetting).toBe('medium');
+      });
+
+      it(`${type} sync exposes one named speed per step`, () => {
+        const response: any = fan.sync(steppedService(type, 32));
+        expect(response.attributes.supportsFanSpeedPercent).toBe(true);
+        const { speeds, ordered } = response.attributes.availableFanSpeeds;
+        expect(ordered).toBe(true);
+        expect(speeds.map((s: any) => s.speed_name)).toEqual(['speed_1', 'speed_2', 'speed_3', 'speed_4', 'speed_5', 'speed_6']);
+        expect(speeds[0].speed_values[0].speed_synonym).toEqual(expect.arrayContaining(['speed 1', 'low']));
+        expect(speeds[5].speed_values[0].speed_synonym).toEqual(expect.arrayContaining(['speed 6', 'high']));
+      });
+
+      it(`${type} query reports the nearest named speed`, () => {
+        const response = fan.query(steppedService(type, 32));
+        expect(response.currentFanSpeedPercent).toBe(32);
+        expect(response.currentFanSpeedSetting).toBe('speed_2');
+      });
+
+      it(`${type} execute sets RotationSpeed for a named speed`, async () => {
+        const service = steppedService(type, 0);
+        const rotationSpeed = service.serviceCharacteristics.find(x => x.type === 'RotationSpeed')!;
+        rotationSpeed.setValue = vi.fn(setValue);
+
+        const response = await fan.execute(service, commandSetFanSpeedNamed('speed_2'));
+        expect(response.status).toBe('SUCCESS');
+        expect(rotationSpeed.setValue).toHaveBeenCalledWith(33.33);
+
+        await fan.execute(service, commandSetFanSpeedNamed('speed_6'));
+        expect(rotationSpeed.setValue).toHaveBeenLastCalledWith(100);
+      });
+
+      it(`${type} execute rejects an unknown named speed`, async () => {
+        const response = await fan.execute(steppedService(type, 0), commandSetFanSpeedNamed('speed_9'));
+        expect(response.status).toBe('ERROR');
+      });
+
+      it(`${type} execute sets a preset on a continuous fan`, async () => {
+        const service = steppedService(type, 0, 1);
+        const rotationSpeed = service.serviceCharacteristics.find(x => x.type === 'RotationSpeed')!;
+        rotationSpeed.setValue = vi.fn(setValue);
+
+        expect((await fan.execute(service, commandSetFanSpeedNamed('low'))).status).toBe('SUCCESS');
+        expect(rotationSpeed.setValue).toHaveBeenLastCalledWith(33);
+        await fan.execute(service, commandSetFanSpeedNamed('medium'));
+        expect(rotationSpeed.setValue).toHaveBeenLastCalledWith(66);
+        await fan.execute(service, commandSetFanSpeedNamed('high'));
+        expect(rotationSpeed.setValue).toHaveBeenLastCalledWith(100);
+      });
+    });
   });
 });
 
+describe('getFanSpeedSteps', () => {
+  const char = (minStep?: number, maxValue = 100, minValue = 0) =>
+    ({ ...fanV1ServiceWithSpeed.serviceCharacteristics[2], minStep, maxValue, minValue });
 
-async function sleep(ms: number) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+  it('returns undefined without RotationSpeed or with a single step', () => {
+    expect(getFanSpeedSteps(undefined)).toBeUndefined();
+    expect(getFanSpeedSteps(char(100))).toBeUndefined();
+  });
+
+  it('offers low/medium/high presets for continuous fans', () => {
+    for (const steps of [getFanSpeedSteps(char(1)), getFanSpeedSteps(char(undefined))]) {
+      expect(steps?.map(s => s.name)).toEqual(['low', 'medium', 'high']);
+      expect(steps?.map(s => s.value)).toEqual([33, 66, 100]);
+    }
+  });
+
+  it('names 3-step and 2-step fans low/medium/high and low/high', () => {
+    expect(getFanSpeedSteps(char(100 / 3))?.map(s => [s.name, s.value])).toEqual([['low', 33.33], ['medium', 66.67], ['high', 100]]);
+    expect(getFanSpeedSteps(char(1, 3))?.map(s => s.name)).toEqual(['low', 'medium', 'high']);
+    expect(getFanSpeedSteps(char(50))?.map(s => s.name)).toEqual(['low', 'high']);
+  });
+
+  it('numbers fans with more steps', () => {
+    const steps = getFanSpeedSteps(char(25));
+    expect(steps?.map(s => s.name)).toEqual(['speed_1', 'speed_2', 'speed_3', 'speed_4']);
+    expect(steps?.map(s => s.value)).toEqual([25, 50, 75, 100]);
+  });
+});
+
 
 const setValue = async function (value: string | number | boolean): Promise<CharacteristicType> {
   // Perform your operations here
@@ -590,6 +672,17 @@ const fanV2ServiceWithSpeed: ServiceType = {
 
 
 
+// 6-speed fan (e.g. homebridge-tuya), RotationSpeed minStep = 100 / 6
+function steppedService(type: string, value: number, minStep = 100 / 6): ServiceType {
+  const base = type === 'fan' ? fanV1ServiceWithSpeed : fanV2ServiceWithSpeed;
+  return {
+    ...base,
+    serviceCharacteristics: base.serviceCharacteristics.map(x =>
+      x.type === 'RotationSpeed' ? { ...x, value, minStep } : x,
+    ),
+  };
+}
+
 const fanServiceDimmer: ServiceType = {
   aid: 14,
   iid: 8,
@@ -718,6 +811,16 @@ const commandSetFanSpeed = {
     },
   ],
 };
+
+const commandSetFanSpeedNamed = (fanSpeed: string) => ({
+  devices: commandOnOff.devices,
+  execution: [
+    {
+      command: 'action.devices.commands.SetFanSpeed',
+      params: { fanSpeed },
+    },
+  ],
+});
 
 const commandMalformed = {
   devices: [
