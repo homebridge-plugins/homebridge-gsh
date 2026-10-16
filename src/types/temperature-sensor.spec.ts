@@ -44,7 +44,7 @@ describe('temperatureSensor', () => {
       expect(response).toBeDefined();
       expect(response.name).toBeDefined();
       expect(response.name.defaultNames).toBeDefined();
-      expect(response.name.defaultNames).toHaveLength(2);
+      expect(response.name.defaultNames).toHaveLength(1);
       expect(response.name.name).toBeDefined();
       expect(response.name.name).not.toBe('');
       expect(response.name.name).toBe('Backyard');

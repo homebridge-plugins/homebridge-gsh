@@ -1,23 +1,33 @@
 version: 2
+# NOTE: target-branch must be bumped to the new beta branch each release cycle.
+# It only affects version updates; security updates always target the default branch (latest).
 updates:
 - package-ecosystem: npm
   directory: "/"
-  target-branch: "beta-4.2.0"
+  target-branch: "beta-4.2.1"
   schedule:
     interval: daily
     time: "10:00"
+  # Wait before proposing freshly published releases (supply-chain protection)
+  cooldown:
+    default-days: 3
   open-pull-requests-limit: 10
   assignees:
   - NorthernMan54
   labels:
     - "dependencies"
-  # Group related updates together (optional)
+  # typescript-eslint and Angular don't support TypeScript 7 yet; remove once they do
+  ignore:
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major"]
+  # Group minor/patch updates together; major updates get their own PRs
   groups:
     packages:
       patterns:
         - "*"
-  # Automatically rebase PRs when conflicts occur
-  rebase-strategy: "auto"
+      update-types:
+        - "minor"
+        - "patch"
   # Commit message prefix
   commit-message:
     prefix: "chore"
@@ -30,22 +40,23 @@ updates:
   schedule:
     interval: "daily"
     time: "09:00"
+  cooldown:
+    default-days: 3
   # Create PRs for out-of-date actions
   open-pull-requests-limit: 10
+  assignees:
+  - NorthernMan54
   # Add labels to PRs
   labels:
     - "dependencies"
-  # Group related updates together (optional)
+  # Group related updates together
   groups:
     actions:
       patterns:
         - "*"
-  # Automatically rebase PRs when conflicts occur
-  rebase-strategy: "auto"
   # Commit message prefix
   commit-message:
     prefix: "chore"
-    prefix-development: "chore"
     include: "scope"
 
 - package-ecosystem: npm
@@ -54,18 +65,30 @@ updates:
   schedule:
     interval: daily
     time: "10:00"
+  cooldown:
+    default-days: 3
   open-pull-requests-limit: 10
   assignees:
   - NorthernMan54
   labels:
     - "dependencies"
-  # Group related updates together (optional)
+  # Angular pins supported TypeScript minor versions; let Angular upgrades drive TypeScript bumps
+  ignore:
+    - dependency-name: "typescript"
+      update-types: ["version-update:semver-major", "version-update:semver-minor"]
   groups:
+    # Keep Angular packages in lockstep (all update types, including majors)
+    angular:
+      patterns:
+        - "@angular/*"
+        - "@angular-devkit/*"
+    # Group remaining minor/patch updates together; major updates get their own PRs
     ui-packages:
       patterns:
         - "*"
-  # Automatically rebase PRs when conflicts occur
-  rebase-strategy: "auto"
+      update-types:
+        - "minor"
+        - "patch"
   # Commit message prefix
   commit-message:
     prefix: "chore"

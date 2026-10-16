@@ -14,6 +14,7 @@ import { Battery } from './types/battery-status.js';
 import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor.js';
 import { ContactSensor } from './types/contact-sensor.js';
 import { Door } from './types/door.js';
+import { Doorbell } from './types/doorbell.js';
 import { Fan, Fanv2 } from './types/fan.js';
 import { GarageDoorOpener } from './types/garage-door-opener.js';
 import { HeaterCooler } from './types/heater-cooler.js';
@@ -55,6 +56,7 @@ export class Hap {
   /* GSH Supported types */
   types = {
     Door: new Door(),
+    Doorbell: new Doorbell(),
     Fan: new Fan(),
     Fanv2: new Fanv2(),
     GarageDoorOpener: new GarageDoorOpener(),
@@ -131,6 +133,7 @@ export class Hap {
     Characteristic.SmokeDetected,
     Characteristic.StatusLowBattery,
     Characteristic.BatteryLevel,
+    Characteristic.ProgrammableSwitchEvent,
   ];
 
   instanceBlacklist: Array<string> = [];
@@ -305,11 +308,26 @@ export class Hap {
     const monitor = await this.hapClient.monitorCharacteristics(evServices);
     monitor.on('service-update', (services) => {
       // this.log.debug(`Service Update ${services}`);
-      services.map((service: any) => {
-        this.reportStateSubject.next(service.uniqueId);
-      });
+      this.handleServiceUpdate(services);
       // this.reportStateSubject.next(services[0].uniqueId);
     });
+  }
+
+  /**
+   * Handle characteristic events from the HAP monitor
+   * @param services
+   */
+  handleServiceUpdate(services: ServiceType[]) {
+    for (const service of services) {
+      // doorbell presses are sent immediately as notifications, not as state
+      if (service.type === 'Doorbell') {
+        if (this.types.Doorbell.isPress(service)) {
+          this.sendNotification(this.types.Doorbell.notification(service));
+        }
+        continue;
+      }
+      this.reportStateSubject.next(service.uniqueId);
+    }
   }
 
   /**
@@ -590,6 +608,20 @@ export class Hap {
       body: states,
     };
     this.log.debug('Sending State Report');
+    this.log.debug(JSON.stringify(payload, null, 2));
+    this.socket.sendJson(payload);
+  }
+
+  /**
+   * Send a notification (e.g. a doorbell press) back to Google
+   * @param notifications
+   */
+  async sendNotification(notifications) {
+    const payload = {
+      type: 'report-notification',
+      body: notifications,
+    };
+    this.log.debug('Sending Notification');
     this.log.debug(JSON.stringify(payload, null, 2));
     this.socket.sendJson(payload);
   }

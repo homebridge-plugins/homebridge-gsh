@@ -15,10 +15,9 @@ export abstract class ghToHap {
       id: service.uniqueId,
       ...typeTraits,
       name: {
-        defaultNames: [
-          ...(service.serviceName ? [service.serviceName] : []),
-          ...(service.accessoryInformation.Name ? [service.accessoryInformation.Name] : []),
-        ],
+        // the accessory name is only a fallback, as it is shared by every service on the accessory
+        // and would make voice commands ambiguous (e.g. a light and fan on the same accessory)
+        defaultNames: [service.serviceName || service.accessoryInformation.Name].filter(Boolean),
         name: service.serviceName || service.accessoryInformation.Name || 'Missing Name',
         nicknames: [],
       },
