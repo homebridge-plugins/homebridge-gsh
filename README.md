@@ -104,20 +104,20 @@ This plugin **must** only be configured on one Homebridge instance on your netwo
 
 ## Fan Voice Commands
 
-Fans that expose a Rotation Speed characteristic can be controlled by percentage or by named speed. The named speeds come from the Rotation Speed `minStep`:
+Fans that expose a Rotation Speed characteristic can be controlled by percentage or by named speed. Every fan answers to "low", "medium" and "high". How they map depends on the Rotation Speed `minStep`:
 
-| Fan reports | Named speeds |
-|---|---|
-| `minStep` of 1 or none (continuous) | `low` (33%), `medium` (66%), `high` (100%) |
-| 2 steps (e.g. `minStep` 50) | `low`, `high` |
-| 3 steps (e.g. `minStep` 33.33) | `low`, `medium`, `high` |
-| 4 to 10 steps (e.g. `minStep` 16.67 for a 6-speed fan) | `speed 1` … `speed N` |
+| Fan reports | Named speeds | low | medium | high |
+|---|---|---|---|---|
+| `minStep` of 1 or none (continuous) | `low`, `medium`, `high` | 33% | 66% | 100% |
+| 2 steps (e.g. `minStep` 50) | `low`, `high` | step 1 | step 2 | step 2 |
+| 3 steps (e.g. `minStep` 33.33) | `low`, `medium`, `high` | step 1 | step 2 | step 3 |
+| 4 to 10 steps (e.g. `minStep` 16.67 for a 6-speed fan) | `speed 1` … `speed N` | speed 1 | middle speed, rounded up (e.g. speed 3 of 6) | speed N |
 
 Example commands, using a fan named "Bedroom Fan":
 
 - "Hey Google, turn on / turn off Bedroom Fan"
 - "Hey Google, set Bedroom Fan to low / medium / high"
-- "Hey Google, set Bedroom Fan to speed 2" (also "level 2"; "low" / "minimum" and "high" / "maximum" always pick the lowest and highest speed)
+- "Hey Google, set Bedroom Fan to speed 2" (also "level 2")
 - "Hey Google, set Bedroom Fan to 40 percent"
 - "Hey Google, what speed is Bedroom Fan on?"
 - "Hey Google, reverse Bedroom Fan" (only if the fan supports Rotation Direction)

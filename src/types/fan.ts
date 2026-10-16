@@ -20,6 +20,13 @@ interface FanSpeedStep {
   synonyms: string[];
 }
 
+/**
+ * Every fan answers to low / medium / high:
+ * - 3 steps (or continuous presets) are named low / medium / high
+ * - 2 steps are named low / high, with "medium" on high
+ * - 4+ steps are named speed_1 … speed_N, with low on the first, medium on the middle
+ *   (rounded up, e.g. speed_3 of 6) and high on the last step
+ */
 function stepNames(index: number, count: number): { name: string; synonyms: string[] } {
   const n = index + 1;
   const numbered = [`speed ${n}`, `level ${n}`];
@@ -33,12 +40,15 @@ function stepNames(index: number, count: number): { name: string; synonyms: stri
   if (count === 2) {
     return [
       { name: 'low', synonyms: ['low', 'minimum', ...numbered] },
-      { name: 'high', synonyms: ['high', 'maximum', ...numbered] },
+      { name: 'high', synonyms: ['high', 'maximum', 'medium', 'mid', ...numbered] },
     ][index];
   }
   const synonyms = [...numbered, `${n}`];
   if (index === 0) {
     synonyms.push('low', 'minimum');
+  }
+  if (index === Math.ceil(count / 2) - 1) {
+    synonyms.push('medium', 'mid');
   }
   if (index === count - 1) {
     synonyms.push('high', 'maximum');
@@ -48,8 +58,7 @@ function stepNames(index: number, count: number): { name: string; synonyms: stri
 
 /**
  * Derive named speeds from RotationSpeed's minStep/minValue/maxValue.
- * - Stepped fans (2–10 steps, e.g. minStep 16.67 for 6 speeds) get one name per step;
- *   3 steps are named low/medium/high, 2 steps low/high, otherwise speed_1 … speed_N.
+ * - Stepped fans (2–10 steps, e.g. minStep 16.67 for 6 speeds) get one name per step, see stepNames.
  * - Continuous fans (minStep 1 / missing) get low/medium/high presets at 33/66/100%.
  * "Off" is not a speed; it is handled by the OnOff trait.
  */

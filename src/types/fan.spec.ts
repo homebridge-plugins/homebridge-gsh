@@ -184,6 +184,25 @@ describe('getFanSpeedSteps', () => {
     expect(steps?.map(s => s.name)).toEqual(['speed_1', 'speed_2', 'speed_3', 'speed_4']);
     expect(steps?.map(s => s.value)).toEqual([25, 50, 75, 100]);
   });
+
+  it('always answers to low, medium and high exactly once', () => {
+    const speedFor = (minStep: number | undefined, synonym: string) =>
+      getFanSpeedSteps(char(minStep))?.filter(s => s.synonyms.includes(synonym)).map(s => s.name);
+    const expected: [number | undefined, string, string, string][] = [
+      [undefined, 'low', 'medium', 'high'],
+      [50, 'low', 'high', 'high'],
+      [100 / 3, 'low', 'medium', 'high'],
+      [25, 'speed_1', 'speed_2', 'speed_4'],
+      [20, 'speed_1', 'speed_3', 'speed_5'],
+      [100 / 6, 'speed_1', 'speed_3', 'speed_6'],
+      [10, 'speed_1', 'speed_5', 'speed_10'],
+    ];
+    for (const [minStep, low, medium, high] of expected) {
+      expect(speedFor(minStep, 'low')).toEqual([low]);
+      expect(speedFor(minStep, 'medium')).toEqual([medium]);
+      expect(speedFor(minStep, 'high')).toEqual([high]);
+    }
+  });
 });
 
 
