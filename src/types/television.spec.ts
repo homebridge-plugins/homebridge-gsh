@@ -1,12 +1,12 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
 import { Log } from '../logger';
 import { Television } from './television';
 
 
-class socketMock {
+const socketMock = new class {
   on(event: string, callback: any) {
     if (event === 'websocket-status') {
       callback('websocket-status');
@@ -20,7 +20,7 @@ class socketMock {
 
     console.log('sendJson', data);
   }
-}
+};
 
 const config: PluginConfig = {
   name: 'Google Smart Home',
@@ -35,11 +35,13 @@ const log = new Log(console, true);
 
 const hap = new Hap(socketMock, log, '031-45-154', config, {});
 
-const television = new Television(hap);
-
 describe('television', () => {
   describe('sync message', () => {
     it('television with On/Off only', async () => {
+      hap.services = [  // initialize once
+        televisionServiceOnOff,
+        speakerService,
+      ];
       const attributes = {
         'availableApplications': [],
         'commandOnlyOnOff': false,
@@ -48,29 +50,61 @@ describe('television', () => {
         'supportPlaybackState': false,
         'transportControlSupportedCommands': [],
       };
-      const response: any = television.sync(televisionServiceOnOff);
+      let response: any = hap.types[televisionServiceOnOff.type as keyof typeof hap.types].sync(televisionServiceOnOff);
       expect(response).toBeDefined();
       expect(response.type).toBe('action.devices.types.TV');
       expect(response.traits).toContain('action.devices.traits.OnOff');
+      expect(response.traits).not.toContain('action.devices.traits.Volume');
       expect(response.traits).not.toContain('action.devices.traits.Brightness');
       expect(response.traits).not.toContain('action.devices.traits.ColorSetting');
       expect(response.attributes).toEqual(attributes);
       // await sleep(10000)
+
+      response = hap.types[speakerService.type as keyof typeof hap.types].sync(speakerService);
+      expect(response).toBeDefined();
+      expect(response.id).toBe(televisionServiceOnOff.uniqueId);
+      expect(response.type).toBe('action.devices.types.TV');
+      expect(response.traits).toContain('action.devices.traits.Volume');
+      expect(response.attributes).toHaveProperty('volumeCanMuteAndUnmute');
+      expect(response.attributes).toHaveProperty('volumeMaxLevel');
+      expect(response.attributes).toHaveProperty('commandOnlyVolume');
     });
   });
   describe('query message', () => {
     it('television with On/Off only', async () => {
-      const response = television.query(televisionServiceOnOff);
+      const response = hap.types[televisionServiceOnOff.type as keyof typeof hap.types].query(televisionServiceOnOff);
       expect(response).toBeDefined();
       expect(response.on).toBeDefined();
       expect(response.online).toBeDefined();
       // await sleep(10000)
+
+      expect({...response, ...{id: televisionServiceOnOff.uniqueId}}).toEqual(
+        hap.types[speakerService.type as keyof typeof hap.types].query(speakerService),
+      );
+    });
+  });
+
+  describe('report state', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('television with speaker', async () => {
+      await hap.reportStateSubject.next(speakerService.uniqueId);
+      await sleep(1000); // debounce time
+      const stdout = vi.mocked(console.log).mock.calls;
+      expect(stdout[0][0]).toContain('sendJson');
+      expect(stdout[0][1].type).toBe('report-state');
+      expect(stdout[0][1].body[televisionServiceOnOff.uniqueId].isMuted).toBe(true);
     });
   });
 
   describe('execute message', () => {
     it('television with On/Off only', async () => {
-      const response = await television.execute(televisionServiceOnOff, commandOnOff);
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandOnOff);
       expect(response).toBeDefined();
       expect(response.ids).toBeDefined();
       expect(response.status).toBe('SUCCESS');
@@ -78,14 +112,14 @@ describe('television', () => {
     });
 
     it('television with On/Off only - commandMalformed', async () => {
-      const response = await television.execute(televisionServiceOnOff, commandMalformed);
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandMalformed);
       expect(response).toBeDefined();
       expect(response.ids).toBeDefined();
       expect(response.status).toBe('ERROR');
     });
 
     it('television with On/Off only - commandIncorrectCommand', async () => {
-      const response = await television.execute(televisionServiceOnOff, commandIncorrectCommand);
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandIncorrectCommand);
       expect(response).toBeDefined();
       expect(response.ids).toBeDefined();
       expect(response.status).toBe('ERROR');
@@ -94,7 +128,40 @@ describe('television', () => {
     it('television with On/Off only - Error', async () => {
       expect.assertions(1);
       televisionServiceOnOff.serviceCharacteristics[0].setValue = setValueError;
-      await expect(television.execute(televisionServiceOnOff, commandOnOff)).rejects.toThrow('Error setting value');
+      await expect(hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandOnOff))
+        .rejects.toThrow('Error setting value');
+      // await sleep(10000)
+    });
+
+    it('television with On/Off only - mute', async () => {
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandMute);
+      expect(response).toBeDefined();
+      expect(response.ids).toBeDefined();
+      expect(response.status).toBe('SUCCESS');
+      // await sleep(10000)
+    });
+
+    it('television with On/Off only - volume up', async () => {
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandVolumeUp);
+      expect(response).toBeDefined();
+      expect(response.ids).toBeDefined();
+      expect(response.status).toBe('SUCCESS');
+      // await sleep(10000)
+    });
+
+    it('television with On/Off only - volume down', async () => {
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandVolumeDown);
+      expect(response).toBeDefined();
+      expect(response.ids).toBeDefined();
+      expect(response.status).toBe('SUCCESS');
+      // await sleep(10000)
+    });
+
+    it('television with On/Off only - set volume', async () => {
+      const response = await hap.types[televisionServiceOnOff.type as keyof typeof hap.types].execute(televisionServiceOnOff, commandSetVolume);
+      expect(response).toBeDefined();
+      expect(response.ids).toBeDefined();
+      expect(response.status).toBe('ERROR');
       // await sleep(10000)
     });
   });
@@ -284,6 +351,114 @@ const televisionServiceOnOff: ServiceType = {
   getCharacteristic,
 };
 
+const speakerService: ServiceType = {
+  aid: 13,
+  iid: 9,
+  uuid: '00000113-0000-1000-8000-0026BB765291',
+  type: 'Speaker',
+  humanType: 'Speaker',
+  serviceName: 'Shed Light',
+  serviceCharacteristics: [
+    {
+      aid: 13,
+      iid: 22,
+      uuid: '000000EA-0000-1000-8000-0026BB765291',
+      type: 'VolumeSelector',
+      serviceType: 'Speaker',
+      serviceName: 'Shed Light',
+      description: 'Volume Selector',
+      format: 'uint8',
+      perms: ['pw'],
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: false,
+      canWrite: true,
+      ev: false,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 20,
+      uuid: '000000B0-0000-1000-8000-0026BB765291',
+      type: 'Active',
+      serviceType: 'Speaker',
+      serviceName: 'Shed Light',
+      description: 'Active',
+      value: 1,
+      format: 'uint8',
+      perms: ['ev', 'pr', 'pw'],
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 21,
+      uuid: '000000E9-0000-1000-8000-0026BB765291',
+      type: 'VolumeControlType',
+      serviceType: 'Speaker',
+      serviceName: 'Shed Light',
+      description: 'Volume Control Type',
+      value: 3,
+      format: 'uint8',
+      perms: ['ev', 'pr'],
+      maxValue: undefined,
+      minValue: undefined,
+      minStep: undefined,
+      canRead: true,
+      canWrite: false,
+      ev: true,
+      setValue,
+      getValue,
+    },
+    {
+      aid: 13,
+      iid: 19,
+      uuid: '0000011A-0000-1000-8000-0026BB765291',
+      type: 'Mute',
+      serviceType: 'Speaker',
+      serviceName: 'Shed Light',
+      description: 'Mute',
+      value: 1,
+      format: 'bool',
+      perms: ['ev', 'pr', 'pw'],
+      canRead: true,
+      canWrite: true,
+      ev: true,
+      setValue,
+      getValue,
+    },
+  ],
+  accessoryInformation: {
+    'Manufacturer': 'Tasmota',
+    'Model': 'WiOn',
+    'Name': 'Shed Light',
+    'Serial Number': '02231D-jessie',
+    'Firmware Revision': '9.5.0tasmota',
+  },
+  values: { Active: 1, VolumeControlType: 3, Mute: 1 },
+  instance: {
+    name: 'homebridge',
+    username: '1C:22:3D:E3:CF:34',
+    ipAddress: '192.168.1.11',
+    port: 46283,
+    connectionFailedCount: 0,
+    services: [],
+    configurationNumber: 1,
+  },
+  uniqueId: '664195d5556f1e0b424ed32bcd863ec8954c76f8ab81cc399f0e24f8827806d2',
+  refreshCharacteristics,
+  setCharacteristic,
+  getCharacteristic,
+}
+
 const televisionServiceDimmer: ServiceType = {
   aid: 14,
   iid: 8,
@@ -398,6 +573,98 @@ const commandOnOff = {
       command: 'action.devices.commands.OnOff',
       params: {
         on: true,
+      },
+    },
+  ],
+};
+
+const commandMute = {
+  devices: [
+    {
+      customData: {
+        aid: 75,
+        iid: 8,
+        instanceIpAddress: '192.168.1.11',
+        instancePort: 46283,
+        instanceUsername: '1C:22:3D:E3:CF:34',
+      },
+      id: 'b9245954ec41632a14076df3bbb7336f756c17ca4b040914a593e14d652d5738',
+    },
+  ],
+  execution: [
+    {
+      command: 'action.devices.commands.mute',
+      params: {
+        on: true,
+      },
+    },
+  ],
+};
+
+const commandVolumeUp = {
+  devices: [
+    {
+      customData: {
+        aid: 75,
+        iid: 8,
+        instanceIpAddress: '192.168.1.11',
+        instancePort: 46283,
+        instanceUsername: '1C:22:3D:E3:CF:34',
+      },
+      id: 'b9245954ec41632a14076df3bbb7336f756c17ca4b040914a593e14d652d5738',
+    },
+  ],
+  execution: [
+    {
+      command: 'action.devices.commands.volumeRelative',
+      params: {
+        relativeSteps: 5,
+      },
+    },
+  ],
+};
+
+const commandVolumeDown = {
+  devices: [
+    {
+      customData: {
+        aid: 75,
+        iid: 8,
+        instanceIpAddress: '192.168.1.11',
+        instancePort: 46283,
+        instanceUsername: '1C:22:3D:E3:CF:34',
+      },
+      id: 'b9245954ec41632a14076df3bbb7336f756c17ca4b040914a593e14d652d5738',
+    },
+  ],
+  execution: [
+    {
+      command: 'action.devices.commands.volumeRelative',
+      params: {
+        relativeSteps: -5,
+      },
+    },
+  ],
+};
+
+const commandSetVolume = {
+  devices: [
+    {
+      customData: {
+        aid: 75,
+        iid: 8,
+        instanceIpAddress: '192.168.1.11',
+        instancePort: 46283,
+        instanceUsername: '1C:22:3D:E3:CF:34',
+      },
+      id: 'b9245954ec41632a14076df3bbb7336f756c17ca4b040914a593e14d652d5738',
+    },
+  ],
+  execution: [
+    {
+      command: 'action.devices.commands.setVolume',
+      params: {
+        volumeLevel: 15,
       },
     },
   ],

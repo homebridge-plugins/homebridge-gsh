@@ -18,8 +18,6 @@ export class Television extends ghToHap implements ghToHap_t {
   sync(service: ServiceType) {
     if (!this.instances[service.uniqueId]) {
       this.instances[service.uniqueId] = {
-        Mute: [],
-        volumeSelector: [],
         channels: [],
         lastChannel: undefined,
         inputs: [],
@@ -28,24 +26,11 @@ export class Television extends ghToHap implements ghToHap_t {
     const instance = this.instances[service.uniqueId];
 
     // console.log(`${service.type}: ${service.instance.username}, aid:${service.aid}, iid:${service.iid}, name: ${service.serviceName}`);
-    const x = this.hap.services.filter(x => x.aid === service.aid && x.instance.username === service.instance.username) ?? [];
-
-    for (const speaker of x.filter(x => x.uuid === Service.Speaker)) {
-      instance.Mute = [];
-      for (const c of speaker.serviceCharacteristics.filter(x => x.uuid === Characteristic.Mute)) {
-        // console.log(`  ${speaker.type}: ${speaker.serviceName}, ${c.type}: ${c.serviceName}`);
-        instance.Mute.push(c);
-      }
-      instance.volumeSelector = [];
-      for (const c of speaker.serviceCharacteristics.filter(x => x.uuid === Characteristic.VolumeSelector)) {
-        // console.log(`  ${speaker.type}: ${speaker.serviceName}, ${c.type}: ${c.serviceName}`);
-        instance.volumeSelector.push(c);
-      }
-    }
+    const services = this.hap.services.filter(x => x.aid === service.aid && x.instance.username === service.instance.username) ?? [];
 
     instance.channels = [];
     instance.inputs = [];
-    for (const input of x.filter(x => x.uuid === Service.InputSource)) {    // service.linked is better?
+    for (const input of services.filter(x => x.uuid === Service.InputSource)) {    // service.linked is better?
       if (input.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentVisibilityState)?.value) {
         continue;       // hidden input source
       }
@@ -79,26 +64,18 @@ export class Television extends ghToHap implements ghToHap_t {
     const attributes = {
       commandOnlyOnOff: false,  //OnOff
       queryOnlyOnOff: false,
-      supportActivityState: service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentMediaState) ? true : false,
-      supportPlaybackState: service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentMediaState) ? true : false,
+      supportActivityState: false,
+      supportPlaybackState: !!service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentMediaState),
+      transportControlSupportedCommands: service.serviceCharacteristics.find(x => x.uuid === Characteristic.RemoteKey) ?
+        [
+          'STOP',
+          'RESUME',
+          'PAUSE',
+          'NEXT',
+          'PREVIOUS',
+        ] : [],
+      availableApplications: [],
     } as any;
-    attributes.availableApplications = [];
-    attributes.transportControlSupportedCommands = [];
-    if (service.serviceCharacteristics.find(x => x.uuid === Characteristic.RemoteKey)) {
-      attributes.transportControlSupportedCommands = [
-        'STOP',
-        'RESUME',
-        'PAUSE',
-        'NEXT',
-        'PREVIOUS',
-      ];
-    }
-    if (instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector)) {
-      traits.push('action.devices.traits.Volume');
-      attributes.volumeCanMuteAndUnmute = instance.Mute.find(x => x.uuid === Characteristic.Mute) ? true : false;
-      attributes.volumeMaxLevel = 20;   //Volume. Just in case for a relative operations
-      attributes.commandOnlyVolume = true;
-    }
     if (instance.channels.length > 0) {
       traits.push('action.devices.traits.Channel');
       attributes.commandOnlyChannels = false;
@@ -161,49 +138,36 @@ export class Television extends ghToHap implements ghToHap_t {
   }
 
   query(service: ServiceType) {
-
     const instance = this.instances[service.uniqueId];
     const response = {
       on: !!service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active).value,
       online: true,
     } as any;
-    if (instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector)) {
-      response.currentVolume = 10;
-    }
-    const cMute = instance.Mute.find(x => x.uuid === Characteristic.Mute);
-    if (cMute) {
-      response.isMuted = cMute.value ? true : false;
-    }
-    const cActive = service.serviceCharacteristics.find(x => x.uuid === Characteristic.ActiveIdentifier);
-    if (cActive) {
-      const lastChannel = instance.channels.find(x => x.Identifier === cActive.value);
+    const identifier = service.serviceCharacteristics.find(x => x.uuid === Characteristic.ActiveIdentifier);
+    if (identifier) {
+      const lastChannel = instance.channels.find(x => x.Identifier === identifier.value);
       if (lastChannel) {
         instance.lastChannel = lastChannel.Identifier;
       }
       if (instance.inputs.length > 0) {
-        response.currentInput = instance.inputs.find(x => x.Identifier === cActive.value)?.serviceName ?? '_tv';
+        response.currentInput = instance.inputs.find(x => x.Identifier === identifier.value)?.serviceName ?? '_tv';
       }
     }
-    const cState = service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentMediaState);
-    if (cState) {
-      // public static readonly PLAY = 0;
-      // public static readonly PAUSE = 1;
-      // public static readonly STOP = 2;
-      // public static readonly LOADING = 4;
-      // public static readonly INTERRUPTED = 5;
-      response.activityState = response.on ? 'STANDBY' : 'INACTIVE';
-      switch (cState.value) {
-        case 0:
+    const mediaState = service.serviceCharacteristics.find(x => x.uuid === Characteristic.CurrentMediaState);
+    if (mediaState) {
+      // response.activityState = response.on ? 'STANDBY' : 'INACTIVE';
+      switch (mediaState.value) {
+        case 0: // public static readonly PLAY = 0;
           response.playbackState = 'PLAYING';
           break;
-        case 1:
+        case 1: // public static readonly PAUSE = 1;
           response.playbackState = 'PAUSED';
           break;
-        case 2:
+        case 2: // public static readonly STOP = 2;
           response.playbackState = 'STOPPED';
           break;
-        case 4:
-        case 5:
+        case 4: // public static readonly LOADING = 4;
+        case 5: // public static readonly INTERRUPTED = 5;
         default:
           response.playbackState = 'BUFFERING';
           break;
@@ -213,11 +177,6 @@ export class Television extends ghToHap implements ghToHap_t {
     // console.log(`${JSON.stringify(instance, null, 2)}`);
 
     return response;
-
-    // return {
-    //   on: !!service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active).value,
-    //   online: true,
-    // };
   }
 
   async execute(service: ServiceType, command: SmartHomeV1ExecuteRequestCommands): Promise<SmartHomeV1ExecuteResponseCommands> {
@@ -230,17 +189,10 @@ export class Television extends ghToHap implements ghToHap_t {
         await service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active).setValue(command.execution[0].params.on ? 1 : 0);
         return { ids: [service.uniqueId], status: 'SUCCESS' };
       }
-      case ('action.devices.commands.mute'): {
-        await instance.Mute.find(x => x.uuid === Characteristic.Mute).setValue(command.execution[0].params.mute ? 1 : 0);
-        return { ids: [service.uniqueId], status: 'SUCCESS' };
-      }
-      // case ('action.devices.commands.setVolume'): {  // No proper characteristic
-      // }
+      case ('action.devices.commands.mute'):
+      case ('action.devices.commands.setVolume'):
       case ('action.devices.commands.volumeRelative'): {
-        // Characteristic.VolumeSelector.INCREMENT = 0;
-        // Characteristic.VolumeSelector.DECREMENT = 1;
-        await instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector).setValue(command.execution[0].params.relativeSteps < 0 ? 1 : 0);
-        return { ids: [service.uniqueId], status: 'SUCCESS' };
+        return undefined;       // Speaker device will manage
       }
       case ('action.devices.commands.selectChannel'): {
         if (command.execution[0].params?.channelCode) {

@@ -1,5 +1,5 @@
 import { ServiceType } from '@homebridge/hap-client';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
 
@@ -52,13 +52,14 @@ describe('combine sensors', () => {
       let response: any;
 
       response = hap.types[batteryTemp.type as keyof typeof hap.types].sync(batteryTemp);
-      expect(response).not.toBeDefined();
-
-      response = hap.types[humiditySensorTemp.type as keyof typeof hap.types].sync(humiditySensorTemp);
-      expect(response).not.toBeDefined();
-
-      response = hap.types[temperatureSensorTemp.type as keyof typeof hap.types].sync(temperatureSensorTemp);
       expect(response).toBeDefined();
+      expect(response).toEqual(
+        hap.types[humiditySensorTemp.type as keyof typeof hap.types].sync(humiditySensorTemp),
+      );
+      expect(response).toEqual(
+        hap.types[temperatureSensorTemp.type as keyof typeof hap.types].sync(temperatureSensorTemp),
+      );
+
       expect(response.id).toBe(temperatureSensorTemp.uniqueId);
       expect(response.type).toBe('action.devices.types.SENSOR');
       expect(response.traits).toContain('action.devices.traits.TemperatureControl');
@@ -104,6 +105,23 @@ describe('combine sensors', () => {
       expect(response).toBeDefined();
       expect(response!.ids).toBeDefined();
       expect(response!.status).toBe('ERROR');
+    });
+  });
+  describe('report state', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('sensors combine', async () => {
+      await hap.reportStateSubject.next(batteryTemp.uniqueId);
+      await sleep(1000); // debounce time
+      const stdout = vi.mocked(console.log).mock.calls;
+      expect(stdout[0][0]).toContain('sendJson');
+      expect(stdout[0][1].type).toBe('report-state');
+      expect(stdout[0][1].body[temperatureSensorTemp.uniqueId]).toHaveProperty('capacityRemaining');
     });
   });
 
@@ -158,6 +176,23 @@ describe('combine sensors', () => {
       expect(response.occupancy).toBeDefined();
       expect(response.occupancy).toMatch(/^(OCCUPIED|UNOCCUPIED)$/);
       expect(response.online).toBeDefined();
+    });
+  });
+  describe('report state', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('sensors with switch', async () => {
+      await hap.reportStateSubject.next(motionSensorTemp.uniqueId);
+      await sleep(1000); // debounce time
+      const stdout = vi.mocked(console.log).mock.calls;
+      expect(stdout[0][0]).toContain('sendJson');
+      expect(stdout[0][1].type).toBe('report-state');
+      expect(stdout[0][1].body[switchTemp.uniqueId].occupancy).toBe('UNOCCUPIED');
     });
   });
 
@@ -235,6 +270,10 @@ describe('combine sensors', () => {
     });
   });
 });
+
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 const batteryTemp: ServiceType = {
   'aid': 23,
@@ -676,7 +715,7 @@ const contactSensorTemp1: ServiceType = {
     services: [],
     configurationNumber: 1,
   },
-  'uniqueId': '4a1df9989d8d4e7b440455f15d9bdd5326d81f80ccfa753499899864a5248657',
+  'uniqueId': '4a1df9989d8d4e7b440455f15d9bdd5326d81f80ccfa753499899864a5248660',
 };
 
 const contactSensorTemp2: ServiceType = {
@@ -730,7 +769,7 @@ const contactSensorTemp2: ServiceType = {
     services: [],
     configurationNumber: 1,
   },
-  'uniqueId': '4a1df9989d8d4e7b440455f15d9bdd5326d81f80ccfa753499899864a5248658',
+  'uniqueId': '4a1df9989d8d4e7b440455f15d9bdd5326d81f80ccfa753499899864a5248661',
 };
 
 const windowCoveringTemp: ServiceType = {

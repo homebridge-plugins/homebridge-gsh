@@ -5,17 +5,12 @@ import { Characteristic } from './hap-types';
 // processPendingStateReports only touches `services`, `types` and `sendStateReport`,
 // so exercise it against a minimal context instead of a live Homebridge instance.
 function makeContext(services: any[]) {
-  const dummy = {
-    sync: () => undefined,
-    query: () => undefined,
-    execute: () => undefined,
-  };
   return {
     services,
     types: {
       Lightbulb: { query: (service: any) => ({ on: service.on, online: true }) },
-      Speaker: dummy,
-      InputSource: dummy,
+      // Speaker: undefined,
+      InputSource: undefined,
     },
     sendStateReport: vi.fn(async (states: any) => states),
   };
