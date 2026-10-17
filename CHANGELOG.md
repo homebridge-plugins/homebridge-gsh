@@ -12,7 +12,7 @@ All notable changes to `homebridge-gsh` will be documented in this file. This pr
 
 - Doorbell support - doorbell presses are sent to Google Home as notifications (no video streaming). #103
 - Fan speed control for fans #92
-  - Named fan speeds - "Set Bedroom Fan to low / medium / high" or "speed 2". Fans with 2-10 Rotation Speed steps (from `minStep`) get one named speed per step, other fans get low / medium / high presets at 33 / 66 / 100%. Percentage control still works. Say "Hey Google, sync my devices" after updating. See [Fan Voice Commands](README.md#fan-voice-commands). #92
+- Named fan speeds - "Set Bedroom Fan to low / medium / high" works on every fan with Rotation Speed. Fans with 2-10 Rotation Speed steps (from `minStep`) also get one named speed per step ("speed 2"), other fans get low / medium / high presets at 33 / 66 / 100%. Percentage control still works. Say "Hey Google, sync my devices" after updating. See [Fan Voice Commands](README.md#fan-voice-commands). #92
 
 ### Fixes
 
