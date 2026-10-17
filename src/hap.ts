@@ -391,6 +391,9 @@ export class Hap {
           this.log.error(`Unexpected query response ${target.serviceName} instead of ${service.serviceName}. ${update}`);
           continue;
         }
+        if (!update) { // just in case
+          continue;
+        }
         response[device.id] = update;
       }
     }
@@ -566,6 +569,9 @@ export class Hap {
       }
       // secondary services respond as a primary service.
       const { id = service.uniqueId, ...response } = this.types[service.type].query(service);
+      if (!response) {
+        continue;
+      }
       // response['target'] = this.services.find(x => x.uniqueId === id).serviceName;
       // response['origin'] = service.serviceName;
       // console.log(response);
@@ -588,6 +594,9 @@ export class Hap {
       .map((service) => {
         // secondary services might respond as a primary service.
         const { id = service.uniqueId, ...update } = this.types[service.type].query(service);
+        if (!update) {
+          return;
+        }
         // update['target'] = this.services.find(x => x.uniqueId === id).serviceName;
         // update['origin'] = service.serviceName;
         states[id] = update;

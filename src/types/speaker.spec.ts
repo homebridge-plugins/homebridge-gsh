@@ -1,5 +1,5 @@
 import { CharacteristicType, ServiceType } from '@homebridge/hap-client';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { Hap } from '../hap';
 import { PluginConfig } from '../interfaces';
 import { Log } from '../logger';
@@ -55,19 +55,7 @@ describe('speaker', () => {
       expect(response.attributes?.commandOnlyVolume).toBe(true);
 
       response = speaker.sync(speakerServiceMin);
-      expect(response).toBeDefined();
-      expect(response.type).toBe('action.devices.types.SPEAKER');
-      expect(response.traits).toContain('action.devices.traits.OnOff');
-      expect(response.traits).toContain('action.devices.traits.Volume');
-      expect(response.traits).toContain('action.devices.traits.TransportControl');
-      expect(response.traits).toContain('action.devices.traits.MediaState');
-      expect(response.traits).not.toContain('action.devices.traits.Brightness');
-      expect(response.traits).not.toContain('action.devices.traits.ColorSetting');
-      expect(response.attributes?.commandOnlyOnOff).toBe(false);
-      expect(response.attributes?.queryOnlyOnOff).toBe(true);
-      expect(response.attributes?.volumeCanMuteAndUnmute).toBe(false);
-      expect(response.attributes).toHaveProperty('volumeMaxLevel');
-      expect(response.attributes?.commandOnlyVolume).toBe(true);
+      expect(response).not.toBeDefined();
       // await sleep(10000)
     });
   });
@@ -81,13 +69,27 @@ describe('speaker', () => {
       expect(response).toHaveProperty('playbackState');
 
       response = speaker.query(speakerServiceMin);
-      expect(response).toBeDefined();
-      expect(response).toHaveProperty('on');
-      expect(response).toHaveProperty('currentVolume');
-      expect(response).toHaveProperty('isMuted');
-      expect(response).toHaveProperty('playbackState');
+      expect(response).not.toBeDefined();
 
       // await sleep(10000)
+    });
+  });
+  describe('report state', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'log').mockImplementation(() => {});
+    });
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('speaker without mute/volume characteristics', async () => {
+      await hap.reportStateSubject.next(speakerServiceMin.uniqueId);
+      await sleep(1000); // debounce time
+      const stdout = vi.mocked(console.log).mock.calls;
+      console.log(stdout);
+      expect(stdout[0][0]).toContain('sendJson');
+      expect(stdout[0][1].type).toBe('report-state');
+      expect(stdout[0][1].body).toEqual({});
     });
   });
 

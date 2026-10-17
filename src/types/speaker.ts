@@ -11,8 +11,14 @@ export class Speaker extends ghToHap implements ghToHap_t {
     super();
   }
 
-  sync(service: ServiceType, primaryResponse?: SmartHomeV1SyncDevices) {
+  sync(service: ServiceType, primaryResponse?: SmartHomeV1SyncDevices | undefined) {
     const tv = this.hap.services.find(x => x.aid === service.aid && x.instance.username === service.instance.username && x.type === 'Television');
+    const mute = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Mute);
+    const volume = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Volume);
+    const volumeSelector = service.serviceCharacteristics.find(x => x.uuid === Characteristic.VolumeSelector);
+    if (!mute && !volume && !volumeSelector) {
+      return undefined; // Insufficient characteristics.
+    }
 
     if (tv && !Speaker.primaryService[service.uniqueId]) {
       Speaker.primaryService[service.uniqueId] = tv;
@@ -52,7 +58,7 @@ export class Speaker extends ghToHap implements ghToHap_t {
     }
     if (!primaryResponse?.traits.includes('action.devices.traits.Volume')) {
       traits.push('action.devices.traits.Volume');
-      attributes.volumeCanMuteAndUnmute = !!service.serviceCharacteristics.find(x => x.uuid === Characteristic.Mute);
+      attributes.volumeCanMuteAndUnmute = !!mute;
       attributes.volumeMaxLevel = 20;   //Volume. Just in case for a relative operations
       attributes.commandOnlyVolume = true;
     }
@@ -66,8 +72,14 @@ export class Speaker extends ghToHap implements ghToHap_t {
   }
 
   query(service: ServiceType, primaryResponse?: Record<string, any>) {
+    const mute = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Mute);
+    const volume = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Volume);
+    const volumeSelector = service.serviceCharacteristics.find(x => x.uuid === Characteristic.VolumeSelector);
     let response = {} as any;
 
+    if (!mute && !volume && !volumeSelector) {
+      return undefined; // void instance
+    }
     if (primaryResponse?.online === undefined) {
       response.online = true;
     }
@@ -150,15 +162,27 @@ export class Speaker extends ghToHap implements ghToHap_t {
         const volume = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Volume);
         const volumeSelector = service.serviceCharacteristics.find(x => x.uuid === Characteristic.VolumeSelector);
         if (volumeSelector) {
+          // Volume characteristic, if exist, should be managed by client side.
           const relativeSteps = command.execution[0].params.relativeSteps;
           if (relativeSteps < 0 && volume && Number(volume?.value) <= 0) {
             return { ids: [service.uniqueId], status: 'ERROR', errorCode: 'volumeAlreadyMin', debugString: `unknown command ${command.execution[0].command}` };
           } else if (relativeSteps > 0 && volume?.value && Number(volume?.value) >= 100) {
             return { ids: [service.uniqueId], status: 'ERROR', errorCode: 'volumeAlreadyMax', debugString: `unknown command ${command.execution[0].command}` };
           } else {
-            await volumeSelector.setValue(relativeSteps < 0 ? 1 : 0);
+            for (let i = Math.abs(relativeSteps); i > 0; i--) {
+              await volumeSelector.setValue(relativeSteps < 0 ? 1 : 0);
+            }
             return { ids: [service.uniqueId], status: 'SUCCESS' };
           }
+        } else if (volume) {
+          let volumeLevel = Number(volume.value) + command.execution[0].params.relativeSteps * (100 / 20);
+          if (volumeLevel <= 0) {
+            volumeLevel = 0;
+          } else if (volumeLevel >= 100) {
+            volumeLevel = 100;
+          }
+          await volume.setValue(volumeLevel);
+          return { ids: [service.uniqueId], status: 'SUCCESS' };
         } else {
           return { ids: [service.uniqueId], status: 'ERROR', debugString: `unknown command ${command.execution[0].command}` };
         }
