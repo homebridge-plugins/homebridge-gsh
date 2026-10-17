@@ -73,7 +73,7 @@ export class Speaker extends ghToHap implements ghToHap_t {
     }
     if (primaryResponse?.on === undefined) {
       const active = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active);
-      response.on = active ? !!active : true;
+      response.on = active ? !!active.value : true;
     }
     if (primaryResponse?.currentVolume === undefined) {
       const volume = service.serviceCharacteristics.find(x => x.uuid === Characteristic.Volume);

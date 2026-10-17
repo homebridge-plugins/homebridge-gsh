@@ -18,8 +18,6 @@ export class Television extends ghToHap implements ghToHap_t {
   sync(service: ServiceType) {
     if (!this.instances[service.uniqueId]) {
       this.instances[service.uniqueId] = {
-        // Mute: [],
-        // volumeSelector: [],
         channels: [],
         lastChannel: undefined,
         inputs: [],
@@ -29,19 +27,6 @@ export class Television extends ghToHap implements ghToHap_t {
 
     // console.log(`${service.type}: ${service.instance.username}, aid:${service.aid}, iid:${service.iid}, name: ${service.serviceName}`);
     const services = this.hap.services.filter(x => x.aid === service.aid && x.instance.username === service.instance.username) ?? [];
-
-    // for (const speaker of services.filter(x => x.uuid === Service.Speaker)) {
-    //   instance.Mute = [];
-    //   for (const c of speaker.serviceCharacteristics.filter(x => x.uuid === Characteristic.Mute)) {
-    //     // console.log(`  ${speaker.type}: ${speaker.serviceName}, ${c.type}: ${c.serviceName}`);
-    //     instance.Mute.push(c);
-    //   }
-    //   instance.volumeSelector = [];
-    //   for (const c of speaker.serviceCharacteristics.filter(x => x.uuid === Characteristic.VolumeSelector)) {
-    //     // console.log(`  ${speaker.type}: ${speaker.serviceName}, ${c.type}: ${c.serviceName}`);
-    //     instance.volumeSelector.push(c);
-    //   }
-    // }
 
     instance.channels = [];
     instance.inputs = [];
@@ -91,12 +76,6 @@ export class Television extends ghToHap implements ghToHap_t {
         ] : [],
       availableApplications: [],
     } as any;
-    // if (instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector)) {
-    //   traits.push('action.devices.traits.Volume');
-    //   attributes.volumeCanMuteAndUnmute = instance.Mute.find(x => x.uuid === Characteristic.Mute) ? true : false;
-    //   attributes.volumeMaxLevel = 20;   //Volume. Just in case for a relative operations
-    //   attributes.commandOnlyVolume = true;
-    // }
     if (instance.channels.length > 0) {
       traits.push('action.devices.traits.Channel');
       attributes.commandOnlyChannels = false;
@@ -164,13 +143,6 @@ export class Television extends ghToHap implements ghToHap_t {
       on: !!service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active).value,
       online: true,
     } as any;
-    // if (instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector)) {
-    //   response.currentVolume = 10;
-    // }
-    // const mute = instance.Mute.find(x => x.uuid === Characteristic.Mute);
-    // if (mute) {
-    //   response.isMuted = mute.value ? true : false;
-    // }
     const identifier = service.serviceCharacteristics.find(x => x.uuid === Characteristic.ActiveIdentifier);
     if (identifier) {
       const lastChannel = instance.channels.find(x => x.Identifier === identifier.value);
@@ -217,18 +189,6 @@ export class Television extends ghToHap implements ghToHap_t {
         await service.serviceCharacteristics.find(x => x.uuid === Characteristic.Active).setValue(command.execution[0].params.on ? 1 : 0);
         return { ids: [service.uniqueId], status: 'SUCCESS' };
       }
-      // case ('action.devices.commands.mute'): {
-      //   await instance.Mute.find(x => x.uuid === Characteristic.Mute).setValue(command.execution[0].params.mute ? 1 : 0);
-      //   return { ids: [service.uniqueId], status: 'SUCCESS' };
-      // }
-      // // case ('action.devices.commands.setVolume'): {  // No proper characteristic
-      // // }
-      // case ('action.devices.commands.volumeRelative'): {
-      //   // Characteristic.VolumeSelector.INCREMENT = 0;
-      //   // Characteristic.VolumeSelector.DECREMENT = 1;
-      //   await instance.volumeSelector.find(x => x.uuid === Characteristic.VolumeSelector).setValue(command.execution[0].params.relativeSteps < 0 ? 1 : 0);
-      //   return { ids: [service.uniqueId], status: 'SUCCESS' };
-      // }
       case ('action.devices.commands.mute'):
       case ('action.devices.commands.setVolume'):
       case ('action.devices.commands.volumeRelative'): {
