@@ -7,13 +7,13 @@ import { Characteristic } from './hap-types.js';
 
 import { PluginConfig } from './interfaces.js';
 import { Log } from './logger.js';
-import { Door } from './types/door.js';
 
 import type { API } from 'homebridge';
 import { createHash } from 'node:crypto';
 import { Battery } from './types/battery-status.js';
 import { CarbonMonoxideSensor } from './types/carbon-monoxide-sensor.js';
 import { ContactSensor } from './types/contact-sensor.js';
+import { Door } from './types/door.js';
 import { Doorbell } from './types/doorbell.js';
 import { Fan, Fanv2 } from './types/fan.js';
 import { GarageDoorOpener } from './types/garage-door-opener.js';
