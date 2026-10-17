@@ -4,6 +4,8 @@ import { Hap } from '../hap.js';
 import { ghToHap, ghToHap_t } from './ghToHapTypes.js';
 
 export class Sensor extends ghToHap implements ghToHap_t {
+  private syncResponse = {};
+
   constructor(
     private hap?: Hap,
   ) {
@@ -11,8 +13,8 @@ export class Sensor extends ghToHap implements ghToHap_t {
   }
 
   sync(service: ServiceType, primaryResponse?: SmartHomeV1SyncDevices): SmartHomeV1SyncDevices {
+    const services = this.hap.services.filter(x => x.aid === service.aid && x.instance.username === service.instance.username) ?? [];
     if (!Sensor.secondaryServices[service.uniqueId] && !Sensor.primaryService[service.uniqueId]) {
-      const services = this.hap.services.filter(x => x.aid === service.aid && x.instance.username === service.instance.username) ?? [];
       const primaryService = services
         .filter(x => Object.keys(this.hap.types).includes(x.type))
         .filter(x => !this.hap.sensorServices.includes(x.type))?.[0]; // select first one.
@@ -45,11 +47,26 @@ export class Sensor extends ghToHap implements ghToHap_t {
           // console.log('type:', service.type, ',primary:', primarySensor.serviceName, ',secondary:', sensorService.type);
         }
       });
+      services  // initialize cache
+        .filter(x => Object.keys(this.hap.sensorTypes).includes(x.type))
+        .map(x => this.syncResponse[x.uniqueId] = undefined);
     }
-    const response = this.hap.sensorTypes[service.type].sync(service, primaryResponse);
-    // console.log(response);
-
-    return response;
+    if (this.syncResponse[service.uniqueId]) {
+      // console.log(service.serviceName,
+      //   this.hap.services.find(x => x.uniqueId === this.syncResponse[service.uniqueId].id).serviceName,
+      //   this.syncResponse[service.uniqueId]);
+      return this.syncResponse[service.uniqueId];
+    } else {
+      const response = this.hap.sensorTypes[service.type].sync(service, primaryResponse);
+      if (!Sensor.primaryService[service.uniqueId] || // root node of sensor hierarchy?
+        !Object.keys(this.hap.sensorTypes).includes(Sensor.primaryService[service.uniqueId].type)) {
+        services // cache sync responses to reduce computational cost
+          .filter(x => Object.keys(this.hap.sensorTypes).includes(x.type))
+          .map(x => this.syncResponse[x.uniqueId] = response);
+      }
+      // console.log(service.serviceName, response);
+      return response;
+    }
   }
 
   query(service: ServiceType, primaryResponse?: SmartHomeV1SyncDevices) {
