@@ -186,7 +186,6 @@ describe('getFanSpeedSteps', () => {
   });
 });
 
->>>>>>> 2958aa7 (Release 4.2.0 (#111))
 
 const setValue = async function (value: string | number | boolean): Promise<CharacteristicType> {
   // Perform your operations here
